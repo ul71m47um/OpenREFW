@@ -1,0 +1,85 @@
+module disxx.disasm.decoder.DataProcessingScalarFPAndAdvancedSIMD.CryptographicAES.SubDecoder;
+
+import disxx.utility.error.DisassemblyError;
+import disxx.disasm.operand.Register;
+import disxx.disasm.utility.bits;
+import disxx.disasm.InstructionIdentifier;
+
+namespace disxx::disasm::decoder::DataProcessingScalarFPAndAdvancedSIMD::CryptographicAES
+{
+	SubDecoder::SubDecoder(void) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{}
+	{}
+
+	SubDecoder::SubDecoder(std::uint32_t insn, std::uint64_t addr) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{insn, addr}
+	{}
+
+	SubDecoder::SubDecoder(const SubDecoder &other) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{other}
+	{}
+
+	SubDecoder &SubDecoder::operator=(const SubDecoder &other) noexcept
+	{
+		if (this != &other) [[likely]]
+			disxx::disasm::decoder::abstract::SubDecoder::operator=(other);
+		return *this;
+	}
+
+	SubDecoder::SubDecoder(SubDecoder &&other) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{std::forward<SubDecoder &&>(other)}
+	{}
+
+	SubDecoder &SubDecoder::operator=(SubDecoder &&other) noexcept
+	{
+		if (this != &other) [[likely]]
+			disxx::disasm::decoder::abstract::SubDecoder::operator=(std::forward<SubDecoder &&>(other));
+		return *this;
+	}
+
+	std::unique_ptr<disxx::disasm::decoder::abstract::SubDecoder> SubDecoder::Clone(void) const noexcept
+	{ return std::make_unique<std::decay_t<decltype(*this)>>(*this); }
+
+	DisassemblyResult SubDecoder::Decode(void) const noexcept
+	{
+        // +--------+----+-----+------+--+--+--+
+        // |01001110|size|10100|opcode|10|Rn|Rd|
+        // +--------+----+-----+------+--+--+--+
+
+        unsigned short int size, opcode, Rn, Rd;
+        size = utility::bits::extract<unsigned short int, std::uint32_t, 22, 23>(this->m_Insn);
+        opcode = utility::bits::extract<unsigned short int, std::uint32_t, 12, 16>(this->m_Insn);
+        Rn = utility::bits::extract<unsigned short int, std::uint32_t, 5, 9>(this->m_Insn);
+        Rd = utility::bits::extract<unsigned short int, std::uint32_t, 0, 4>(this->m_Insn);
+
+        std::unordered_map<unsigned short int, InstructionIdentifier> insnTable = {
+            {0b00100, InstructionIdentifier::ID_AESE},
+            {0b00101, InstructionIdentifier::ID_AESD},
+            {0b00110, InstructionIdentifier::ID_AESMC},
+            {0b00111, InstructionIdentifier::ID_AESIMC}
+        };
+
+        const auto it{insnTable.find(opcode)};
+        if (it == insnTable.end() || size != 0b00) [[unlikely]]
+            return std::unexpected{disxx::utility::error::DisassemblyError{this->m_Insn}};
+
+        this->m_Operands.emplace_back
+		(
+			std::make_unique<disxx::disasm::operand::Register>
+			(
+				disxx::disasm::operand::Register::Type::TYPE_V,
+				Rd
+			)
+		);
+        this->m_Operands.emplace_back
+		(
+			std::make_unique<disxx::disasm::operand::Register>
+			(
+				disxx::disasm::operand::Register::Type::TYPE_V,
+				Rn
+			)
+		);
+
+        return std::make_pair(it->second, std::move(this->m_Operands));
+	}
+} /* disxx::disasm::decoder::DataProcessingScalarFPAndAdvancedSIMD::CryptographicAES */

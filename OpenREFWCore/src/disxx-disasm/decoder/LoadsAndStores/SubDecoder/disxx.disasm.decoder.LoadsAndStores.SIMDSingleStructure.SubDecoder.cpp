@@ -1,0 +1,174 @@
+module disxx.disasm.decoder.LoadsAndStores.SIMDSingleStructure.SubDecoder;
+
+import disxx.disasm.operand.LoadsAndStoresAddress;
+import disxx.utility.error.DisassemblyError;
+import disxx.disasm.operand.Immediate;
+import disxx.disasm.operand.Register;
+import disxx.disasm.InstructionIdentifier;
+import disxx.disasm.utility.bits;
+
+namespace disxx::disasm::decoder::LoadsAndStores::SIMDSingleStructure
+{
+	SubDecoder::SubDecoder(void) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{}
+	{}
+
+	SubDecoder::SubDecoder(std::uint32_t insn, std::uint64_t addr) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{insn, addr}
+	{}
+
+	SubDecoder::SubDecoder(const SubDecoder &other) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{other}
+	{}
+
+	SubDecoder &SubDecoder::operator=(const SubDecoder &other) noexcept
+	{
+		if (this != &other)
+			[[maybe_unused]] const auto &_{disxx::disasm::decoder::abstract::SubDecoder::operator=(other)};
+		return *this;
+	}
+
+	SubDecoder::SubDecoder(SubDecoder &&other) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{std::move(other)}
+	{}
+
+	SubDecoder &SubDecoder::operator=(SubDecoder &&other) noexcept
+	{
+		[[maybe_unused]] const auto &_{disxx::disasm::decoder::abstract::SubDecoder::operator=(std::move(other))};
+		return *this;
+	}
+
+	std::unique_ptr<disxx::disasm::decoder::abstract::SubDecoder> SubDecoder::Clone(void) const noexcept
+	{ return std::make_unique<std::decay_t<decltype(*this)>>(*this); }
+
+	DisassemblyResult SubDecoder::Decode(void) const noexcept
+	{
+        // +-+-+-------+-+-+----+--+------+-+----+--+--+
+        // |0|Q|0011010|L|R|0000|o2|opcode|S|size|Rn|Rt|
+        // +-+-+-------+-+-+----+--+------+-+----+--+--+
+        
+        unsigned short int Q, L, R, o2, opcode, S, size, Rn, Rt;
+        Q = utility::bits::extract<unsigned short int, std::uint32_t, 30, 30>(this->m_Insn);
+        L = utility::bits::extract<unsigned short int, std::uint32_t, 22, 22>(this->m_Insn);
+        R = utility::bits::extract<unsigned short int, std::uint32_t, 21, 21>(this->m_Insn);
+        o2 = utility::bits::extract<unsigned short int, std::uint32_t, 16, 16>(this->m_Insn);
+        opcode = utility::bits::extract<unsigned short int, std::uint32_t, 13, 15>(this->m_Insn);
+        S = utility::bits::extract<unsigned short int, std::uint32_t, 12, 12>(this->m_Insn);
+        size = utility::bits::extract<unsigned short int, std::uint32_t, 10, 11>(this->m_Insn);
+        Rn = utility::bits::extract<unsigned short int, std::uint32_t, 5, 9>(this->m_Insn);
+        Rt = utility::bits::extract<unsigned short int, std::uint32_t, 0, 4>(this->m_Insn);
+
+        static const std::unordered_map<unsigned short int, std::pair<InstructionIdentifier, unsigned short int>> insnTable = {
+            {0b000000, {InstructionIdentifier::ID_ST1, 1}},
+            {0b000001, {InstructionIdentifier::ID_ST3, 3}},
+            {0b000010, {InstructionIdentifier::ID_ST1, 1}},
+            {0b000011, {InstructionIdentifier::ID_ST3, 3}},
+            {0b000100, {InstructionIdentifier::ID_ST1, 1}},
+            {0b000101, {InstructionIdentifier::ID_ST3, 3}},
+            {0b001100, {InstructionIdentifier::ID_STL1, 1}},
+            {0b010000, {InstructionIdentifier::ID_ST2, 2}},
+            {0b010001, {InstructionIdentifier::ID_ST4, 4}},
+            {0b010010, {InstructionIdentifier::ID_ST2, 2}},
+            {0b010011, {InstructionIdentifier::ID_ST4, 4}},
+            {0b010100, {InstructionIdentifier::ID_ST2, 2}},
+            {0b010101, {InstructionIdentifier::ID_ST4, 4}},
+            {0b100000, {InstructionIdentifier::ID_LD1, 1}},
+            {0b100001, {InstructionIdentifier::ID_LD3, 3}},
+            {0b100010, {InstructionIdentifier::ID_LD1, 1}},
+            {0b100011, {InstructionIdentifier::ID_LD3, 3}},
+            {0b100100, {InstructionIdentifier::ID_LD1, 1}},
+            {0b100101, {InstructionIdentifier::ID_LD3, 3}},
+            {0b100110, {InstructionIdentifier::ID_LD1R, 1}},
+            {0b100111, {InstructionIdentifier::ID_LD3R, 3}},
+            {0b101100, {InstructionIdentifier::ID_LDAP1, 1}},
+            {0b110000, {InstructionIdentifier::ID_LD2, 2}},
+            {0b110001, {InstructionIdentifier::ID_LD4, 4}},
+            {0b110010, {InstructionIdentifier::ID_LD2, 2}},
+            {0b110011, {InstructionIdentifier::ID_LD4, 4}},
+            {0b110100, {InstructionIdentifier::ID_LD2, 2}},
+            {0b110101, {InstructionIdentifier::ID_LD4, 4}},
+            {0b110110, {InstructionIdentifier::ID_LD2R, 2}},
+            {0b110111, {InstructionIdentifier::ID_LD4R, 4}}
+        };
+
+        const auto encoding{static_cast<unsigned short int>((L << 5) | (R << 4) | (o2 << 3) | opcode)};
+        const auto it{insnTable.find(encoding)};
+        if (it == insnTable.end()) [[unlikely]]
+            return std::unexpected{disxx::utility::error::DisassemblyError{this->m_Insn}};
+        const auto &[insn, nregs]{it->second};
+        
+        const auto result
+        {
+            [this, Q, L, R, o2, opcode, S, size]
+                -> std::expected<std::pair<disxx::disasm::operand::VectorArrangementSpecifier, std::optional<unsigned short int>>, disxx::utility::error::DisassemblyError>
+            {
+				const std::unordered_map<unsigned short int, unsigned short int> indexTable = {
+            		{8, (Q << 3) | (S << 2) | size},
+            		{16, (Q << 2) | (S << 1) | (size >> 1)},
+           			{32, (Q << 1) | S},
+            		{64, Q}
+        		};
+
+                if (R == 0b0 && opcode == 0b100 && S == 0b0 && size == 0b01)
+                    return std::make_pair(disxx::disasm::operand::VectorArrangementSpecifier{0b1011}, std::optional<unsigned short int>{Q});
+                else if (L == 0b1 && o2 == 0b0 && (opcode == 0b110 || opcode == 0b111) && S == 0b0)
+                    return std::make_pair(disxx::disasm::operand::VectorArrangementSpecifier{static_cast<unsigned short int>((size << 1) | Q)}, std::nullopt);
+            
+                // Calculating registers size
+                const auto var
+                {
+                    [this, opcode, size, S] -> std::expected<unsigned short int, disxx::utility::error::DisassemblyError>
+                    {
+                        const auto idx{utility::bits::HighestSetBit<unsigned short int, 3>(opcode)};
+                        if (idx == 2 && (size != 0b00 || (S != 0b0 && size != 0b01) || opcode & ~(1 << 2))) [[unlikely]]
+                            return std::unexpected{disxx::utility::error::DisassemblyError{this->m_Insn}};
+                        return (8 << (idx + (idx < 0))) << (S == 0b0 && size == 0b01);
+                    }()
+                };
+
+                if (!var) [[unlikely]]
+                    return std::unexpected{var.error()};
+                const auto &rsize{var.value()};
+
+                return std::make_pair
+                (
+					disxx::disasm::operand::VectorArrangementSpecifier{static_cast<unsigned short int>(0b1000 | (rsize / 8 - 1))},
+                    indexTable.at(rsize)
+                );
+            }()
+        };
+
+        if (!result) [[unlikely]]
+            return std::unexpected{result.error()};
+        const auto &[spec, index]{result.value()};
+
+        for (const auto Ri : std::views::iota(Rt, std::add_sat<unsigned short int>(Rt, nregs)))
+        {
+            this->m_Operands.emplace_back
+			(
+				std::make_unique<disxx::disasm::operand::Register>
+				(
+					disxx::disasm::operand::Register::Type::TYPE_V,
+					Ri
+				)
+			);
+            static_cast<disxx::disasm::operand::Register *>(this->m_Operands.rbegin()->get())->SetVectorArrangementSpecifier(spec);
+        }
+        if (index)
+            this->m_Operands.emplace_back(std::make_unique<disxx::disasm::operand::Immediate<unsigned short int, 4>>(*index));
+		this->m_Operands.emplace_back
+		(
+			std::make_unique<disxx::disasm::operand::LoadsAndStoresAddress>
+			(
+				disxx::disasm::operand::Register
+				{
+					disxx::disasm::operand::Register::Type::TYPE_X,
+					Rn,
+					true
+				}
+			)
+		);
+
+        return std::make_pair(insn, std::move(this->m_Operands));
+	}
+} /* disxx::disasm::decoder::LoadsAndStores::SIMDSingleStructure */

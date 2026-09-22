@@ -1,0 +1,92 @@
+module disxx.disasm.decoder.DataProcessingScalarFPAndAdvancedSIMD.CryptographicTwoRegisterSHA512.SubDecoder;
+
+import disxx.utility.error.DisassemblyError;
+import disxx.disasm.operand.Register;
+import disxx.disasm.utility.bits;
+import disxx.disasm.InstructionIdentifier;
+
+namespace disxx::disasm::decoder::DataProcessingScalarFPAndAdvancedSIMD::CryptographicTwoRegisterSHA512
+{
+	SubDecoder::SubDecoder(void) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{}
+	{}
+
+	SubDecoder::SubDecoder(std::uint32_t insn, std::uint64_t addr) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{insn, addr}
+	{}
+
+	SubDecoder::SubDecoder(const SubDecoder &other) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{other}
+	{}
+
+	SubDecoder &SubDecoder::operator=(const SubDecoder &other) noexcept
+	{
+		if (this != &other) [[likely]]
+			disxx::disasm::decoder::abstract::SubDecoder::operator=(other);
+		return *this;
+	}
+
+	SubDecoder::SubDecoder(SubDecoder &&other) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{std::forward<SubDecoder &&>(other)}
+	{}
+
+	SubDecoder &SubDecoder::operator=(SubDecoder &&other) noexcept
+	{
+		if (this != &other) [[likely]]
+			disxx::disasm::decoder::abstract::SubDecoder::operator=(std::forward<SubDecoder &&>(other));
+		return *this;
+	}
+
+	std::unique_ptr<disxx::disasm::decoder::abstract::SubDecoder> SubDecoder::Clone(void) const noexcept
+	{ return std::make_unique<std::decay_t<decltype(*this)>>(*this); }
+
+	DisassemblyResult SubDecoder::Decode(void) const noexcept
+	{
+        // +--------------------+------+--+--+
+        // |11001110110000001000|opcode|Rn|Rd|
+        // +--------------------+------+--+--+
+
+        unsigned short int opcode, Rn, Rd;
+        opcode = utility::bits::extract<unsigned short int, std::uint32_t, 10, 11>(this->m_Insn);
+        Rn = utility::bits::extract<unsigned short int, std::uint32_t, 5, 9>(this->m_Insn);
+        Rd = utility::bits::extract<unsigned short int, std::uint32_t, 0, 4>(this->m_Insn);
+
+        if (opcode > 0b01) [[unlikely]]
+            return std::unexpected{disxx::utility::error::DisassemblyError{this->m_Insn}};
+
+        const disxx::disasm::operand::VectorArrangementSpecifier spec
+		{
+			static_cast<unsigned short int>
+			(
+				((0b10 + opcode != 0b01) << 1)
+					| 0b1
+			)
+		};
+        this->m_Operands.emplace_back
+		(
+			std::make_unique<disxx::disasm::operand::Register>
+			(
+				disxx::disasm::operand::Register::Type::TYPE_V,
+				Rd
+			)
+		);
+        static_cast<disxx::disasm::operand::Register *>(this->m_Operands.rbegin()->get())->SetVectorArrangementSpecifier(spec);
+        this->m_Operands.emplace_back
+		(
+			std::make_unique<disxx::disasm::operand::Register>
+			(
+				disxx::disasm::operand::Register::Type::TYPE_V,
+				Rn
+			)
+		);
+        static_cast<disxx::disasm::operand::Register *>(this->m_Operands.rbegin()->get())->SetVectorArrangementSpecifier(spec);
+
+        return std::make_pair
+        (
+            opcode == 0b00
+                ? InstructionIdentifier::ID_SHA512SU0
+                : InstructionIdentifier::ID_SM4E,
+            std::move(this->m_Operands)
+        );
+	}
+} /* disxx::disasm::decoder::DataProcessingScalarFPAndAdvancedSIMD::CryptographicTwoRegisterSHA512 */

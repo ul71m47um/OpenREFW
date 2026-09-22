@@ -1,0 +1,146 @@
+module disxx.disasm.decoder.LoadsAndStores.RegisterLiteral.SubDecoder;
+
+import disxx.disasm.operand.LoadsAndStoresAddress;
+import disxx.utility.error.DisassemblyError;
+import disxx.disasm.operand.PrefetchOperand;
+import disxx.disasm.operand.Immediate;
+import disxx.disasm.operand.Register;
+import disxx.disasm.InstructionIdentifier;
+import disxx.disasm.utility.bits;
+
+namespace disxx::disasm::decoder::LoadsAndStores::RegisterLiteral
+{
+	SubDecoder::SubDecoder(void) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{}
+	{}
+
+	SubDecoder::SubDecoder(std::uint32_t insn, std::uint64_t addr) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{insn, addr}
+	{}
+
+	SubDecoder::SubDecoder(const SubDecoder &other) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{other}
+	{}
+
+	SubDecoder &SubDecoder::operator=(const SubDecoder &other) noexcept
+	{
+		if (this != &other)
+			[[maybe_unused]] const auto &_{disxx::disasm::decoder::abstract::SubDecoder::operator=(other)};
+		return *this;
+	}
+
+	SubDecoder::SubDecoder(SubDecoder &&other) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{std::move(other)}
+	{}
+
+	SubDecoder &SubDecoder::operator=(SubDecoder &&other) noexcept
+	{
+		[[maybe_unused]] const auto &_{disxx::disasm::decoder::abstract::SubDecoder::operator=(std::move(other))};
+		return *this;
+	}
+
+	std::unique_ptr<disxx::disasm::decoder::abstract::SubDecoder> SubDecoder::Clone(void) const noexcept
+	{ return std::make_unique<std::decay_t<decltype(*this)>>(*this); }
+
+	DisassemblyResult SubDecoder::Decode(void) const noexcept
+	{
+        // +---+---+--+--+-----+--+
+        // |opc|011|VR|00|imm19|Rt|
+        // +---+---+--+--+-----+--+
+
+        unsigned short int opc, VR, Rt;
+        unsigned long int imm19;
+
+        opc = utility::bits::extract<unsigned short int, std::uint32_t, 30, 31>(this->m_Insn);
+        VR = utility::bits::extract<unsigned short int, std::uint32_t, 26, 26>(this->m_Insn);
+        imm19 = utility::bits::extract<unsigned long int, std::uint32_t, 5, 23>(this->m_Insn);
+        Rt = utility::bits::extract<unsigned short int, std::uint32_t, 0, 4>(this->m_Insn);
+
+        if (opc == 0b11 && VR == 0b1) [[unlikely]]
+            return std::unexpected{disxx::utility::error::DisassemblyError{this->m_Insn}};
+
+        auto &&[insn, opr]
+        {
+            [opc, VR, Rt]
+                -> std::pair<InstructionIdentifier, std::variant<std::unique_ptr<disxx::disasm::operand::PrefetchOperand>, std::unique_ptr<disxx::disasm::operand::Register>>>
+            {
+                if (opc == 0b11 && VR == 0b0)
+                    return std::make_pair(InstructionIdentifier::ID_PRFM, std::make_unique<disxx::disasm::operand::PrefetchOperand>(Rt));
+                else
+                {
+                    return std::make_pair
+                    (
+                        opc == 0b10 && VR == 0b0
+                            ? InstructionIdentifier::ID_LDRSW
+                            : InstructionIdentifier::ID_LDR,
+                        std::make_unique<disxx::disasm::operand::Register>
+                        (
+							[VR, opc] -> disxx::disasm::operand::Register::Type
+							{
+								if (const auto rsize{opc == 0b10 ? (64 << VR) : (opc == 0b01 ? 64 : 32)}; VR == 0b0)
+								{
+									return rsize == 64
+										? disxx::disasm::operand::Register::Type::TYPE_X
+										: disxx::disasm::operand::Register::Type::TYPE_W;
+								}
+								else
+								{
+									switch (rsize)
+									{
+									  case 8:
+										return disxx::disasm::operand::Register::Type::TYPE_B;
+
+									  case 16:
+										return disxx::disasm::operand::Register::Type::TYPE_H;
+			
+									  case 32:
+										return disxx::disasm::operand::Register::Type::TYPE_S;
+
+									  case 64:
+										return disxx::disasm::operand::Register::Type::TYPE_D;
+	
+									  default:
+										return disxx::disasm::operand::Register::Type::TYPE_Q;
+									}
+								}
+							}(),
+                            Rt
+                        )
+                    );
+                }
+            }()
+        };
+
+        std::visit
+        (
+            [this](auto &&var) -> void
+            {
+				this->m_Operands.emplace_back
+				(
+					std::forward
+					<
+						typename
+						std::add_rvalue_reference
+						<
+							typename
+							std::decay<decltype(var)>::type
+						>::type
+					>(var)
+				);
+			},
+            opr
+        );
+        this->m_Operands.emplace_back
+        (
+            std::make_unique<disxx::disasm::operand::Immediate<unsigned int, 19>>
+            (
+                imm19,
+                disxx::disasm::operand::Immediate<unsigned int, 19>::Option::OPT_SIGNEXTEND
+            )
+        );
+        *static_cast<disxx::disasm::operand::Immediate<unsigned int, 19> *>(this->m_Operands.rbegin()->get()) += static_cast<unsigned int>(this->m_ProgramCounter);
+        this->m_ProgramCounterRelevantAddress = std::ref(**this->m_Operands.rbegin());
+
+        return std::make_pair(insn, std::move(this->m_Operands));
+	}
+} /* disxx::disasm::decoder::LoadsAndStores::RegisterLiteral */

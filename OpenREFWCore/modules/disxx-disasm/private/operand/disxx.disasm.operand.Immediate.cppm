@@ -1,0 +1,208 @@
+export module disxx.disasm.operand.Immediate;
+
+import disxx.disasm.operand.IOperand;
+
+export import std;
+
+template <typename T>
+concept Imm = std::is_arithmetic<T>::value;
+
+template <typename T, unsigned short int _Size>
+concept ImmSize = sizeof(T) * 8 >= _Size;
+
+template <typename T, typename U>
+concept OverflowProof = sizeof(T) >= sizeof(U);
+
+export namespace disxx::disasm::operand
+{
+    template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+	class __attribute__((visibility("default"))) Immediate final : public IOperand
+    {
+	  public:
+		enum class Option
+		{
+			OPT_NONE,
+			OPT_SIGNEXTEND,
+			OPT_ZEROEXTEND,
+			OPT_VFPEXPANDIMM
+		};
+
+	  private:
+		Option m_Option{};
+		T m_Value{};
+	
+      public:
+		explicit Immediate(void) noexcept;
+        explicit Immediate(T, Option = Option::OPT_NONE) noexcept;
+      
+		virtual ~Immediate(void) noexcept override = default;
+ 
+		Immediate(const Immediate &) noexcept;
+		Immediate& operator=(const Immediate &) noexcept;
+        
+		Immediate(Immediate &&) noexcept;
+		Immediate& operator=(Immediate &&) noexcept;
+
+       	template <Imm U> requires OverflowProof<T, U>
+		Immediate<T, _Size> operator+(const U &) const noexcept;
+        template <Imm U> requires OverflowProof<T, U>
+		Immediate<T, _Size> &operator+=(const U &) noexcept;
+		template <Imm U> requires OverflowProof<T, U>
+		Immediate<T, _Size> operator<<(const U &) const noexcept;
+    	template <Imm U> requires OverflowProof<T, U>
+		Immediate<T, _Size> &operator<<=(const U &) noexcept;
+ 
+        virtual std::unique_ptr<IOperand> Clone(void) const noexcept override;
+
+		inline T GetValue(void) const noexcept;
+		inline Option GetOption(void) const noexcept;
+	};
+
+
+	template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+    Immediate<T, _Size>::Immediate(void) noexcept
+        : IOperand{}
+		, m_Option{}
+        , m_Value{static_cast<T>(0)}
+	{}
+
+	template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+	Immediate<T, _Size>::Immediate(T value, Option opt) noexcept
+		: IOperand{}
+		, m_Option{opt}
+		, m_Value{value}
+	{
+		#pragma clang diagnostic push
+		#pragma clang diagnostic ignored "-Wshift-count-overflow"
+		#pragma clang diagnostic ignored "-Winteger-overflow"
+		#pragma clang diagnostic ignored "-Wsign-conversion"
+		#pragma clang diagnostic ignored "-Wswitch-enum"
+		switch (opt)
+		{
+		  case Option::OPT_SIGNEXTEND:
+			if constexpr (std::is_integral<T>::value)
+				this->m_Value |= static_cast<T>(this->m_Value & (1ull << (_Size - 1)))
+           			? static_cast<T>(~((1 << _Size) - 1))
+           			: this->m_Value;
+			return;
+
+		  case Option::OPT_ZEROEXTEND:
+			if constexpr (std::is_integral<T>::value)
+				this->m_Value = this->m_Value >> (_Size - sizeof(T));
+			return;
+
+		  default:
+			return;
+		}
+		#pragma clang diagnostic pop
+	}
+
+	template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+	Immediate<T, _Size>::Immediate(const Immediate &other) noexcept
+		: IOperand{}
+		, m_Option{other.m_Option}
+		, m_Value{other.m_Value}
+	{}
+
+	template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+	Immediate<T, _Size> &Immediate<T, _Size>::operator=(const Immediate &other) noexcept
+	{
+		if (this != &other) [[likely]]
+		{
+			this->m_Option = other.m_Option;
+			this->m_Value = other.m_Value;
+		}
+
+		return *this;
+	}
+
+	template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+	Immediate<T, _Size>::Immediate(Immediate &&other) noexcept
+		: IOperand{}
+		, m_Option{std::move(other.m_Option)}
+		, m_Value{std::move(other.m_Value)}
+	{}
+
+	template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+	Immediate<T, _Size> &Immediate<T, _Size>::operator=(Immediate &&other) noexcept
+	{
+		if (this != &other) [[likely]]
+		{
+			this->m_Option = std::move(other.m_Option);
+			this->m_Value = std::move(other.m_Value);
+		}
+
+		return *this;
+	}
+
+	template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+    template <Imm U> requires OverflowProof<T, U>
+    Immediate<T, _Size> Immediate<T, _Size>::operator+(const U &val) const noexcept
+    {
+		return Immediate<T, _Size>
+		{
+			std::add_sat<T>(this->m_Value, static_cast<T>(val)),
+			Option::OPT_NONE
+		};
+    }
+
+	template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+    template <Imm U> requires OverflowProof<T, U>
+    Immediate<T, _Size> &Immediate<T, _Size>::operator+=(const U &val) noexcept
+    {
+		this->m_Value = std::add_sat<T>(this->m_Value, static_cast<T>(val));
+		return *this;
+	}
+
+	template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+    template <Imm U> requires OverflowProof<T, U>
+    Immediate<T, _Size> Immediate<T, _Size>::operator<<(const U &val) const noexcept
+    {
+		return Immediate<T, _Size>
+		{
+ 			std::mul_sat<T>
+			(
+				this->m_Value,
+				[](U num) -> T
+				{
+					auto result{static_cast<U>(2)};
+					for (const auto _ : std::views::iota(static_cast<U>(1), num))
+						result = std::mul_sat<U>(result, 2);
+					return static_cast<T>(result);
+				}(val)
+  			),
+			Option::OPT_NONE
+		};
+	}
+
+	template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+    template <Imm U> requires OverflowProof<T, U>
+    Immediate<T, _Size> &Immediate<T, _Size>::operator<<=(const U &val) noexcept
+    {
+		this->m_Value = std::mul_sat<T>
+		(
+			this->m_Value,
+			[](U num) -> T
+			{
+				auto result{static_cast<U>(2)};
+				for (const auto _ : std::views::iota(static_cast<U>(1), num))
+					result = std::mul_sat<U>(result, 2);
+				return static_cast<T>(result);
+			}(val)
+		);
+
+		return *this;
+    }
+
+	template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+	std::unique_ptr<IOperand> Immediate<T, _Size>::Clone(void) const noexcept
+	{ return std::make_unique<Immediate<T, _Size>>(*this); }
+
+	template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+	inline T Immediate<T, _Size>::GetValue(void) const noexcept
+	{ return this->m_Value; }
+
+	template <Imm T, unsigned short int _Size> requires ImmSize<T, _Size>
+	inline Immediate<T, _Size>::Option Immediate<T, _Size>::GetOption(void) const noexcept
+	{ return this->m_Option; }
+} /* disxx::disasm::operand */

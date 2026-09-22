@@ -1,0 +1,283 @@
+module disxx.disasm.decoder.DataProcessingScalarFPAndAdvancedSIMD.ConversionBetweenFloatingPointAndInteger.SubDecoder;
+
+import disxx.utility.error.DisassemblyError;
+import disxx.disasm.operand.Register;
+import disxx.disasm.utility.bits;
+import disxx.disasm.InstructionIdentifier;
+
+namespace
+{
+	inline disxx::disasm::operand::Register::Type mktp(unsigned short int ftype) noexcept
+	{
+		switch (ftype)
+		{
+		  case 0b11:
+			return disxx::disasm::operand::Register::Type::TYPE_H;
+
+		  case 0b10:
+			[[fallthrough]];
+		  case 0b00:
+			return disxx::disasm::operand::Register::Type::TYPE_S;
+		
+		  default:
+			return disxx::disasm::operand::Register::Type::TYPE_D;
+		}
+	}
+} /* */
+
+namespace disxx::disasm::decoder::DataProcessingScalarFPAndAdvancedSIMD::ConversionBetweenFloatingPointAndInteger
+{
+	SubDecoder::SubDecoder(void) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{}
+	{}
+
+	SubDecoder::SubDecoder(std::uint32_t insn, std::uint64_t addr) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{insn, addr}
+	{}
+
+	SubDecoder::SubDecoder(const SubDecoder &other) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{other}
+	{}
+
+	SubDecoder &SubDecoder::operator=(const SubDecoder &other) noexcept
+	{
+		if (this != &other) [[likely]]
+			disxx::disasm::decoder::abstract::SubDecoder::operator=(other);
+		return *this;
+	}
+
+	SubDecoder::SubDecoder(SubDecoder &&other) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{std::forward<SubDecoder &&>(other)}
+	{}
+
+	SubDecoder &SubDecoder::operator=(SubDecoder &&other) noexcept
+	{
+		if (this != &other) [[likely]]
+			disxx::disasm::decoder::abstract::SubDecoder::operator=(std::forward<SubDecoder &&>(other));
+		return *this;
+	}
+
+	std::unique_ptr<disxx::disasm::decoder::abstract::SubDecoder> SubDecoder::Clone(void) const noexcept
+	{ return std::make_unique<std::decay_t<decltype(*this)>>(*this); }
+
+	DisassemblyResult SubDecoder::Decode(void) const noexcept
+	{
+        // +--+-+-+-----+-----+-+-----+------+------+--+--+
+        // |sf|0|S|11110|ftype|1|rmode|opcode|000000|Rn|Rd|
+        // +--+-+-+-----+-----+-+-----+------+------+--+--+
+
+        unsigned short int sf, S, ftype, rmode, opcode, Rn, Rd;
+        sf = utility::bits::extract<unsigned short int, std::uint32_t, 31, 31>(this->m_Insn);
+        S = utility::bits::extract<unsigned short int, std::uint32_t, 29, 29>(this->m_Insn);
+        ftype = utility::bits::extract<unsigned short int, std::uint32_t, 22, 23>(this->m_Insn);
+        rmode = utility::bits::extract<unsigned short int, std::uint32_t, 19, 20>(this->m_Insn);
+        opcode = utility::bits::extract<unsigned short int, std::uint32_t, 16, 18>(this->m_Insn);
+        Rn = utility::bits::extract<unsigned short int, std::uint32_t, 5, 9>(this->m_Insn);
+        Rd = utility::bits::extract<unsigned short int, std::uint32_t, 0, 4>(this->m_Insn);
+
+        std::unordered_map<unsigned short int, InstructionIdentifier> insnTable = {
+            {0b000000000, InstructionIdentifier::ID_FCVTNS},
+            {0b000000001, InstructionIdentifier::ID_FCVTNU},
+            {0b000000010, InstructionIdentifier::ID_SCVTF},
+            {0b000000011, InstructionIdentifier::ID_UCVTF},
+            {0b000000100, InstructionIdentifier::ID_FCVTAS},
+            {0b000000101, InstructionIdentifier::ID_FCVTAU},
+            {0b000000110, InstructionIdentifier::ID_FMOV},
+            {0b000000111, InstructionIdentifier::ID_FMOV},
+            {0b000001000, InstructionIdentifier::ID_FCVTPS},
+            {0b000001001, InstructionIdentifier::ID_FCVTPU},
+            {0b000010000, InstructionIdentifier::ID_FCVTMS},
+            {0b000010001, InstructionIdentifier::ID_FCVTMU},
+            {0b000011000, InstructionIdentifier::ID_FCVTZS},
+            {0b000011001, InstructionIdentifier::ID_FCVTZU},
+            {0b000100000, InstructionIdentifier::ID_FCVTNS},
+            {0b000100001, InstructionIdentifier::ID_FCVTNU},
+            {0b000100010, InstructionIdentifier::ID_SCVTF},
+            {0b000100011, InstructionIdentifier::ID_UCVTF},
+            {0b000100100, InstructionIdentifier::ID_FCVTAS},
+            {0b000100101, InstructionIdentifier::ID_FCVTAU},
+            {0b000101000, InstructionIdentifier::ID_FCVTPS},
+            {0b000101001, InstructionIdentifier::ID_FCVTPU},
+            {0b000101010, InstructionIdentifier::ID_FCVTNS},
+            {0b000101011, InstructionIdentifier::ID_FCVTNU},
+            {0b000110000, InstructionIdentifier::ID_FCVTMS},
+            {0b000110001, InstructionIdentifier::ID_FCVTMU},
+            {0b000110010, InstructionIdentifier::ID_FCVTPS},
+            {0b000110011, InstructionIdentifier::ID_FCVTPU},
+            {0b000110100, InstructionIdentifier::ID_FCVTMS},
+            {0b000110101, InstructionIdentifier::ID_FCVTMU},
+            {0b000110110, InstructionIdentifier::ID_FCVTZS},
+            {0b000110111, InstructionIdentifier::ID_FCVTZU},
+            {0b000111000, InstructionIdentifier::ID_FCVTZS},
+            {0b000111001, InstructionIdentifier::ID_FCVTZU},
+            {0b000111010, InstructionIdentifier::ID_FCVTAS},
+            {0b000111011, InstructionIdentifier::ID_FCVTAU},
+            {0b000111100, InstructionIdentifier::ID_SCVTF},
+            {0b000111101, InstructionIdentifier::ID_UCVTF},
+            {0b000111110, InstructionIdentifier::ID_FJCVTZS},
+            {0b001100000, InstructionIdentifier::ID_FCVTNS},
+            {0b001100001, InstructionIdentifier::ID_FCVTNU},
+            {0b001100010, InstructionIdentifier::ID_SCVTF},
+            {0b001100011, InstructionIdentifier::ID_UCVTF},
+            {0b001100100, InstructionIdentifier::ID_FCVTAS},
+            {0b001100101, InstructionIdentifier::ID_FCVTAU},
+            {0b001100110, InstructionIdentifier::ID_FMOV},
+            {0b001100111, InstructionIdentifier::ID_FMOV},
+            {0b001101000, InstructionIdentifier::ID_FCVTPS},
+            {0b001101001, InstructionIdentifier::ID_FCVTPU},
+            {0b001101010, InstructionIdentifier::ID_FCVTNS},
+            {0b001101011, InstructionIdentifier::ID_FCVTNU},
+            {0b001110000, InstructionIdentifier::ID_FCVTMS},
+            {0b001110001, InstructionIdentifier::ID_FCVTMU},
+            {0b001110010, InstructionIdentifier::ID_FCVTPS},
+            {0b001110011, InstructionIdentifier::ID_FCVTPU},
+            {0b001110100, InstructionIdentifier::ID_FCVTMS},
+            {0b001110101, InstructionIdentifier::ID_FCVTMU},
+            {0b001110110, InstructionIdentifier::ID_FCVTZS},
+            {0b001110111, InstructionIdentifier::ID_FCVTZU},
+            {0b001111000, InstructionIdentifier::ID_FCVTZS},
+            {0b001111001, InstructionIdentifier::ID_FCVTZU},
+            {0b001111010, InstructionIdentifier::ID_FCVTAS},
+            {0b001111011, InstructionIdentifier::ID_FCVTAU},
+            {0b001111100, InstructionIdentifier::ID_SCVTF},
+            {0b001111101, InstructionIdentifier::ID_UCVTF},
+            {0b100000000, InstructionIdentifier::ID_FCVTNS},
+            {0b100000001, InstructionIdentifier::ID_FCVTNU},
+            {0b100000010, InstructionIdentifier::ID_SCVTF},
+            {0b100000011, InstructionIdentifier::ID_UCVTF},
+            {0b100000100, InstructionIdentifier::ID_FCVTAS},
+            {0b100000101, InstructionIdentifier::ID_FCVTAU},
+            {0b100001000, InstructionIdentifier::ID_FCVTPS},
+            {0b100001001, InstructionIdentifier::ID_FCVTPU},
+            {0b100001010, InstructionIdentifier::ID_FCVTNS},
+            {0b100001011, InstructionIdentifier::ID_FCVTNU},
+            {0b100010000, InstructionIdentifier::ID_FCVTMS},
+            {0b100010001, InstructionIdentifier::ID_FCVTMU},
+            {0b100010010, InstructionIdentifier::ID_FCVTPS},
+            {0b100010011, InstructionIdentifier::ID_FCVTPU},
+            {0b100010100, InstructionIdentifier::ID_FCVTMS},
+            {0b100010101, InstructionIdentifier::ID_FCVTMU},
+            {0b100010110, InstructionIdentifier::ID_FCVTZS},
+            {0b100010111, InstructionIdentifier::ID_FCVTZU},
+            {0b100011000, InstructionIdentifier::ID_FCVTZS},
+            {0b100011001, InstructionIdentifier::ID_FCVTZU},
+            {0b100011010, InstructionIdentifier::ID_FCVTAS},
+            {0b100011011, InstructionIdentifier::ID_FCVTAU},
+            {0b100011100, InstructionIdentifier::ID_SCVTF},
+            {0b100011101, InstructionIdentifier::ID_UCVTF},
+            {0b100100000, InstructionIdentifier::ID_FCVTNS},
+            {0b100100001, InstructionIdentifier::ID_FCVTNU},
+            {0b100100010, InstructionIdentifier::ID_SCVTF},
+            {0b100100011, InstructionIdentifier::ID_UCVTF},
+            {0b100100100, InstructionIdentifier::ID_FCVTAS},
+            {0b100100101, InstructionIdentifier::ID_FCVTAU},
+            {0b100100110, InstructionIdentifier::ID_FMOV},
+            {0b100100111, InstructionIdentifier::ID_FMOV},
+            {0b100101000, InstructionIdentifier::ID_FCVTPS},
+            {0b100101001, InstructionIdentifier::ID_FCVTPU},
+            {0b100110000, InstructionIdentifier::ID_FCVTMS},
+            {0b100110001, InstructionIdentifier::ID_FCVTMU},
+            {0b100111000, InstructionIdentifier::ID_FCVTZS},
+            {0b100111001, InstructionIdentifier::ID_FCVTZU},
+            {0b101001110, InstructionIdentifier::ID_FMOV},
+            {0b101001111, InstructionIdentifier::ID_FMOV},
+            {0b101100000, InstructionIdentifier::ID_FCVTNS},
+            {0b101100001, InstructionIdentifier::ID_FCVTNU},
+            {0b101100010, InstructionIdentifier::ID_SCVTF},
+            {0b101100011, InstructionIdentifier::ID_UCVTF},
+            {0b101100100, InstructionIdentifier::ID_FCVTAS},
+            {0b101100101, InstructionIdentifier::ID_FCVTAU},
+            {0b101100110, InstructionIdentifier::ID_FMOV},
+            {0b101100111, InstructionIdentifier::ID_FMOV},
+            {0b101101000, InstructionIdentifier::ID_FCVTPS},
+            {0b101101001, InstructionIdentifier::ID_FCVTPU},
+            {0b101101010, InstructionIdentifier::ID_FCVTNS},
+            {0b101101011, InstructionIdentifier::ID_FCVTNU},
+            {0b101110000, InstructionIdentifier::ID_FCVTMS},
+            {0b101110001, InstructionIdentifier::ID_FCVTMU},
+            {0b101110010, InstructionIdentifier::ID_FCVTPS},
+            {0b101110011, InstructionIdentifier::ID_FCVTPU},
+            {0b101110100, InstructionIdentifier::ID_FCVTMS},
+            {0b101110101, InstructionIdentifier::ID_FCVTMU},
+            {0b101110110, InstructionIdentifier::ID_FCVTZS},
+            {0b101110111, InstructionIdentifier::ID_FCVTZU},
+            {0b101111000, InstructionIdentifier::ID_FCVTZS},
+            {0b101111001, InstructionIdentifier::ID_FCVTZU},
+            {0b101111010, InstructionIdentifier::ID_FCVTAS},
+            {0b101111011, InstructionIdentifier::ID_FCVTAU},
+            {0b101111100, InstructionIdentifier::ID_SCVTF},
+            {0b101111101, InstructionIdentifier::ID_UCVTF}
+        };
+
+        const auto encoding{static_cast<unsigned short int>((sf << 8) | (S << 7) | (ftype << 5) | (rmode << 3) | opcode)};
+        const auto it{insnTable.find(encoding)};
+        if (it == insnTable.end()) [[unlikely]]
+            return std::unexpected{disxx::utility::error::DisassemblyError{this->m_Insn}};
+
+        // That's the one of the most terrible pieces of code ever written
+        if (((rmode == 0b10 || rmode == 0b11) && opcode >= 0b010) || (rmode == 0b01 && (opcode == 0b010 || opcode == 0b011)))
+        {
+            if (rmode == 0b11 && (opcode == 0b100 || opcode == 0b101))
+            {
+                this->m_Operands.emplace_back(std::make_unique<disxx::disasm::operand::Register>(mktp(ftype), Rd));
+                this->m_Operands.emplace_back
+				(
+					std::make_unique<disxx::disasm::operand::Register>
+					(
+						sf
+							? disxx::disasm::operand::Register::Type::TYPE_D
+							: disxx::disasm::operand::Register::Type::TYPE_S,
+						Rn
+					)
+				);
+    
+                return std::make_pair(it->second, std::move(this->m_Operands));
+            }
+            
+			this->m_Operands.emplace_back
+			(
+				std::make_unique<disxx::disasm::operand::Register>
+				(
+					sf
+						? disxx::disasm::operand::Register::Type::TYPE_D
+						: disxx::disasm::operand::Register::Type::TYPE_S,
+					Rd
+				)
+			);
+			this->m_Operands.emplace_back(std::make_unique<disxx::disasm::operand::Register>(mktp(ftype), Rn));
+    
+            return std::make_pair(it->second, std::move(this->m_Operands));
+        }
+            
+        if (opcode == 0b010 || opcode == 0b011)
+        {
+			this->m_Operands.emplace_back(std::make_unique<disxx::disasm::operand::Register>(mktp(ftype), Rd));
+            this->m_Operands.emplace_back
+			(
+				std::make_unique<disxx::disasm::operand::Register>
+				(
+					sf
+						? disxx::disasm::operand::Register::Type::TYPE_D
+						: disxx::disasm::operand::Register::Type::TYPE_S,
+					Rn
+				)
+			);
+            
+            return std::make_pair(it->second, std::move(this->m_Operands));
+        }
+             
+		this->m_Operands.emplace_back
+		(
+			std::make_unique<disxx::disasm::operand::Register>
+			(
+				sf
+					? disxx::disasm::operand::Register::Type::TYPE_D
+					: disxx::disasm::operand::Register::Type::TYPE_S,
+				Rd
+			)
+		);
+		this->m_Operands.emplace_back(std::make_unique<disxx::disasm::operand::Register>(mktp(ftype), Rn));   
+
+        return std::make_pair(it->second, std::move(this->m_Operands));
+	}
+} /* disxx::disasm::decoder::DataProcessingScalarFPAndAdvancedSIMD::ConversionBetweenFloatingPointAndInteger */

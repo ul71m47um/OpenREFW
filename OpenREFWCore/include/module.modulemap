@@ -1,0 +1,5 @@
+module OpenREFWCore [system] {
+    requires cplusplus
+    header "Core.h"
+    export *
+}

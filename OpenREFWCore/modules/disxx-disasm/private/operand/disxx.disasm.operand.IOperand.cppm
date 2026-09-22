@@ -1,0 +1,17 @@
+export module disxx.disasm.operand.IOperand;
+
+export import disxx.utility.trait.IClone;
+
+export namespace disxx::disasm::operand
+{
+    class __attribute__((visibility("default"))) [[nodiscard]] IOperand : public disxx::utility::trait::IClone<IOperand>
+    {
+      public:
+		explicit IOperand(void) noexcept = default;
+
+		IOperand(const IOperand &) noexcept = default;
+		IOperand &operator=(const IOperand &) noexcept = default;
+
+		virtual ~IOperand(void) noexcept override = default;
+	};
+} /* operand */

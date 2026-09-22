@@ -1,0 +1,120 @@
+module disxx.disasm.decoder.DataProcessingScalarFPAndAdvancedSIMD.AdvancedSIMDTwoRegisterMiscellaneousFP16.SubDecoder;
+
+import disxx.utility.error.DisassemblyError;
+import disxx.disasm.operand.Immediate;
+import disxx.disasm.operand.Register;
+import disxx.disasm.utility.bits;
+import disxx.disasm.InstructionIdentifier;
+
+namespace disxx::disasm::decoder::DataProcessingScalarFPAndAdvancedSIMD::AdvancedSIMDTwoRegisterMiscellaneousFP16
+{
+	SubDecoder::SubDecoder(void) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{}
+	{}
+
+	SubDecoder::SubDecoder(std::uint32_t insn, std::uint64_t addr) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{insn, addr}
+	{}
+
+	SubDecoder::SubDecoder(const SubDecoder &other) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{other}
+	{}
+
+	SubDecoder &SubDecoder::operator=(const SubDecoder &other) noexcept
+	{
+		if (this != &other) [[likely]]
+			disxx::disasm::decoder::abstract::SubDecoder::operator=(other);
+		return *this;
+	}
+
+	SubDecoder::SubDecoder(SubDecoder &&other) noexcept
+		: disxx::disasm::decoder::abstract::SubDecoder{std::forward<SubDecoder &&>(other)}
+	{}
+
+	SubDecoder &SubDecoder::operator=(SubDecoder &&other) noexcept
+	{
+		if (this != &other) [[likely]]
+			disxx::disasm::decoder::abstract::SubDecoder::operator=(std::forward<SubDecoder &&>(other));
+		return *this;
+	}
+
+	std::unique_ptr<disxx::disasm::decoder::abstract::SubDecoder> SubDecoder::Clone(void) const noexcept
+	{ return std::make_unique<std::decay_t<decltype(*this)>>(*this); }
+
+	DisassemblyResult SubDecoder::Decode(void) const noexcept
+	{
+        // +-+-+-----+-+------+------+--+--+--+
+        // |0|Q|01110|a|111100|opcode|10|Rn|Rd|
+        // +-+-+-----+-+------+------+--+--+--+
+
+        unsigned short int Q, a, opcode, Rn, Rd;
+        Q = utility::bits::extract<unsigned short int, std::uint32_t, 30, 30>(this->m_Insn);
+        a = utility::bits::extract<unsigned short int, std::uint32_t, 23, 23>(this->m_Insn);
+        opcode = utility::bits::extract<unsigned short int, std::uint32_t, 12, 16>(this->m_Insn);
+        Rn = utility::bits::extract<unsigned short int, std::uint32_t, 5, 9>(this->m_Insn);
+        Rd = utility::bits::extract<unsigned short int, std::uint32_t, 0, 4>(this->m_Insn);
+
+        std::unordered_map<unsigned short int, InstructionIdentifier> insnTable = {
+            {0b0011000, InstructionIdentifier::ID_FRINTN},
+            {0b0011001, InstructionIdentifier::ID_FRINTM},
+            {0b0011010, InstructionIdentifier::ID_FCVTNS},
+            {0b0011011, InstructionIdentifier::ID_FCVTMS},
+            {0b0011100, InstructionIdentifier::ID_FCVTAS},
+            {0b0011101, InstructionIdentifier::ID_SCVTF},
+            {0b0101100, InstructionIdentifier::ID_FCMGT},
+            {0b0101101, InstructionIdentifier::ID_FCMEQ},
+            {0b0101110, InstructionIdentifier::ID_FCMLT},
+            {0b0101111, InstructionIdentifier::ID_FABS},
+            {0b0111000, InstructionIdentifier::ID_FRINTP},
+            {0b0111001, InstructionIdentifier::ID_FRINTZ},
+            {0b0111010, InstructionIdentifier::ID_FCVTPS},
+            {0b0111011, InstructionIdentifier::ID_FCVTZS},
+            {0b0111101, InstructionIdentifier::ID_FRECPE},
+            {0b1011000, InstructionIdentifier::ID_FRINTA},
+            {0b1011001, InstructionIdentifier::ID_FRINTX},
+            {0b1011010, InstructionIdentifier::ID_FCVTNU},
+            {0b1011011, InstructionIdentifier::ID_FCVTMU},
+            {0b1011100, InstructionIdentifier::ID_FCVTAU},
+            {0b1011101, InstructionIdentifier::ID_UCVTF},
+            {0b1101100, InstructionIdentifier::ID_FCMGE},
+            {0b1101101, InstructionIdentifier::ID_FCMLE},
+            {0b1101111, InstructionIdentifier::ID_FNEG},
+            {0b1111001, InstructionIdentifier::ID_FRINTI},
+            {0b1111010, InstructionIdentifier::ID_FCVTPU},
+            {0b1111011, InstructionIdentifier::ID_FCVTZU},
+            {0b1111101, InstructionIdentifier::ID_FRSQRTE},
+            {0b1111111, InstructionIdentifier::ID_FSQRT}
+        };
+
+        const auto encoding{static_cast<unsigned short int>((Q << 6) | (a << 5) | opcode)};
+        const auto it{insnTable.find(encoding)};
+        if (it == insnTable.end()) [[unlikely]]
+            return std::unexpected{disxx::utility::error::DisassemblyError{this->m_Insn}};
+
+        const disxx::disasm::operand::VectorArrangementSpecifier specifier{static_cast<unsigned short int>(0b010 | Q)};
+        this->m_Operands.emplace_back
+		(
+			std::make_unique<disxx::disasm::operand::Register>
+			(
+				disxx::disasm::operand::Register::Type::TYPE_V,
+				Rd
+			)
+		);
+        static_cast<disxx::disasm::operand::Register *>(this->m_Operands.rbegin()->get())
+			->SetVectorArrangementSpecifier(specifier);
+        this->m_Operands.emplace_back
+		(
+			std::make_unique<disxx::disasm::operand::Register>
+			(
+				disxx::disasm::operand::Register::Type::TYPE_V,
+				Rn
+			)
+		);
+        static_cast<disxx::disasm::operand::Register *>(this->m_Operands.rbegin()->get())
+			->SetVectorArrangementSpecifier(specifier);
+        if (opcode >= 0b01100 && opcode <= 0b01110)
+            this->m_Operands.emplace_back(std::make_unique<disxx::disasm::operand::Immediate<float, 1>>(0.f));
+
+        return std::make_pair(it->second, std::move(this->m_Operands));
+	}
+} /* disxx::disasm::decoder::DataProcessingScalarFPAndAdvancedSIMD::AdvancedSIMDTwoRegisterMiscellaneousFP16 */
