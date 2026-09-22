@@ -134,3 +134,39 @@ std::vector<std::string> Core::Disassemble(const std::string path) noexcept
 
 	return strings;
 }
+
+std::vector<Core::Section> Core::ParseSections(const std::string path) noexcept
+{
+    std::vector<Section> sects{};
+
+    // Load the executable
+    disxx::loader::macho::Loader ldr{};
+    if (!ldr.LoadFile(path)) [[unlikely]]
+        std::vector<std::string>{};
+    
+    // Load metadata of the executable
+    auto metadataResult{ldr.LoadMetadata()};
+    if (!metadataResult) [[unlikely]]
+        std::vector<Section>{};
+
+    const auto dataResult{ldr.LoadData()};
+    if (!dataResult) [[unlikely]]
+        std::vector<Section>{};
+
+    for (auto &section : dataResult->GetSections())
+    {
+        std::vector<std::string> labels{};
+        for (const auto &label : section.GetLabels())
+            labels.emplace_back(std::string{label.GetName()});
+        sects.emplace_back
+        (
+            Section
+            {
+                .labels = std::move(labels),
+                .name = std::string{section.GetName()},
+            }
+        );
+    }
+    
+    return std::move(sects);
+}
