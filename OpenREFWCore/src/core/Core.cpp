@@ -35,7 +35,7 @@ std::vector<std::string> Core::Disassemble(const std::string path) noexcept
 	for (auto &section : dataResult->GetSections())
 	{
 		const auto name{section.GetName()};
-		strings.emplace_back(std::format(".section {}", name));
+		strings.emplace_back(std::format("{:#016x}: .section {}", section.GetAddress(), name));
 
 		// these sections are considered as executable
 		if (name == "__TEXT,__text" || name == "__TEXT,__stubs")
@@ -46,7 +46,7 @@ std::vector<std::string> Core::Disassemble(const std::string path) noexcept
 		
 			for (const auto &label : section.GetLabels())
 		    {
-				strings.emplace_back(std::format("{}:", label.GetName()));
+				strings.emplace_back(std::format("{:#016x}: {}:", label.GetAddress(), label.GetName()));
 
 				disxx::disasm::Disassembler disasm{};
 				const auto vec
@@ -83,8 +83,9 @@ std::vector<std::string> Core::Disassemble(const std::string path) noexcept
     		            	    (
 									std::format
 									(
-										"{} ; {:#x}",
-    		            	        	std::regex_replace
+										"{:#016x}:\t{}\t; {:#x}",
+    		            	        	integer(addr) - 4,
+                                        std::regex_replace
 										(
 											mnemonic,
 											std::regex
@@ -102,10 +103,10 @@ std::vector<std::string> Core::Disassemble(const std::string path) noexcept
 	   		            	}
 	   		        	}
 
-						strings.push_back(mnemonic);
+						strings.push_back(std::format("{:#016x}:\t{}", integer(addr) - 4, mnemonic));
 					}
 					else
-						strings.emplace_back(insn.error().what());
+						strings.emplace_back(std::format("{:#016x}:\t{}", integer(addr) - 4, insn.error().what()));
 				}
     		}
 		}
@@ -113,17 +114,18 @@ std::vector<std::string> Core::Disassemble(const std::string path) noexcept
 		{
 			for (const auto &label : section.GetLabels())
 			{
-				strings.emplace_back(std::format("{}:", label.GetName()));
-				for (const auto &byte : label.GetData<std::uint8_t>())
+				strings.emplace_back(std::format("{:#016x}: {}:", label.GetAddress(), label.GetName()));
+                for (std::uint64_t addr{label.GetAddress()}; const auto &byte : label.GetData<std::uint8_t>())
 				{
 					strings.emplace_back
 					(
 						std::format
 						(
-							".byte {:#02x}{}",
-							byte,
+							"{:#016x}:\t.byte {:#02x}{}",
+							addr++,
+                            byte,
 							std::isprint(byte) && !std::isspace(byte)
-								? std::format(" ; \'{:c}\'", byte)
+								? std::format("\t; \'{:c}\'", byte)
 								: std::string{}
 						)
 					);

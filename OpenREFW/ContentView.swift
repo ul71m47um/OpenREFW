@@ -19,6 +19,7 @@ struct ContentView: View {
     @State private var files: [Executable] = []
     @State private var tabs: [FileTab] = []
     @State private var currentTab: UUID? = nil
+    @State private var status: String = "Ready"
     @State private var presented: Bool = false
     @State private var targeted: Bool = false
 
@@ -28,15 +29,15 @@ struct ContentView: View {
             set: { self.currentTab = $0 }
         )) {
             ForEach(self.tabs) { tab in
-                TabContent(tab: tab)
+                TabContentView(tab: tab)
                     .tag(Optional.some(tab.id))
-                    .tabItem { TabLabel(name: tab.name) }
+                    .tabItem { TabLabelView(name: tab.name) }
             }
         }
         .tabViewStyle(.grouped)
     }
 
-    var body: some View {
+    public var body: some View {
         VStack {
             ZStack {
                 if tabs.isEmpty {
@@ -75,24 +76,12 @@ struct ContentView: View {
         .fileImporter(isPresented: self.$presented, allowedContentTypes: [.executable]) { result in
             switch result {
             case .success(let url):
-                let text: AttributedString = Disassembler().Disassemble(url)
-                self.files.append(
-                    Executable(
-                        sections: Disassembler().Parse(url),
-                        name: String(url.absoluteString.trimmingPrefix("file://"))
-                    )
-                )
-                let tab: FileTab = FileTab(
-                    name: String(url.absoluteString.trimmingPrefix("file://")),
-                    text: text
-                )
-                self.tabs.append(tab)
-                self.currentTab = tab.id
-                self.presented = false
-                
+                self.push(path: url)
             case .failure:
                 break
             }
+            
+            self.presented = false
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
@@ -110,21 +99,78 @@ struct ContentView: View {
 
             _ = provider.loadObject(ofClass: URL.self) { url, _ in
                 guard let url: URL = url else { return }
-                DispatchQueue.main.async {
-                    let text: AttributedString = Disassembler().Disassemble(url)
-                    self.files.append(
-                        Executable(
-                            sections: Disassembler().Parse(url),
-                            name: String(url.absoluteString.trimmingPrefix("file://"))
-                        )
-                    )
-                    let newTab = FileTab(name: url.lastPathComponent, text: text)
-                    self.tabs.append(newTab)
-                    self.currentTab = newTab.id
-                }
+                self.push(path: url)
             }
 
             return true
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            HStack {
+                Text("Status: \(self.status)")
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 10)
+            .frame(maxWidth: .infinity)
+            .frame(height: 24)
+            .background(.bar)
+        }
+    }
+    
+    public func push(path: URL) -> Void {
+        DispatchQueue.global().async {
+            self.status = "Disassembling..."
+            let text: AttributedString = Disassembler().Disassemble(path)
+            self.status = "Ready"
+            
+            DispatchQueue.main.async {
+                self.files.append(
+                    Executable(
+                        sections: Disassembler().Parse(path),
+                        name: String(path.absoluteString.trimmingPrefix("file://"))
+                    )
+                )
+                let tab: FileTab = FileTab(
+                    name: String("\(path.absoluteString.trimmingPrefix("file://")) - disassembled"),
+                    text: text
+                )
+                self.tabs.append(tab)
+                self.currentTab = tab.id
+                self.presented = false
+            }
+        }
+    }
+}
+
+public struct AboutView: View {
+    public var body: some View {
+        ScrollView {
+            VStack {
+                Text("OpenREFW - Open Reverse-Engeneering FrameWork")
+                    .font(.largeTitle)
+                Text("Version 0.1.0")
+                
+                Spacer()
+                
+                ScrollView {
+                    Text(
+                        #"""
+                            Copyright 2026 ul71m47um
+                        
+                            Licensed under the Apache License, Version 2.0 (the "License");
+                            you may not use this file except in compliance with the License.
+                            You may obtain a copy of the License at
+                        
+                                http://www.apache.org/licenses/LICENSE-2.0
+                        
+                            Unless required by applicable law or agreed to in writing, software
+                            distributed under the License is distributed on an "AS IS" BASIS,
+                            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                            See the License for the specific language governing permissions and
+                            limitations under the License.
+                        """#
+                    )
+                }
+            }
         }
     }
 }
@@ -133,7 +179,7 @@ private struct DisassembledView: View {
     public let text: AttributedString
     private var lines: [AttributedString]
     
-    var body: some View {
+    public var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(lines.indices, id: \.self) { index in
@@ -164,10 +210,10 @@ private struct DisassembledView: View {
     }
 }
 
-private struct TabContent: View {
+private struct TabContentView: View {
     public let tab: FileTab
 
-    var body: some View {
+    public var body: some View {
         DisassembledView(text: tab.text)
             .frame(maxWidth: .infinity, alignment: .leading)
             .textSelection(.enabled)
@@ -175,29 +221,67 @@ private struct TabContent: View {
     }
 }
 
-private struct TabLabel: View {
-    let name: String
-    var body: some View {
+private struct TabLabelView: View {
+    public let name: String
+    public var body: some View {
         Text(name)
             .fixedSize()
     }
 }
 
 private struct TreeContent: View {
-    public var files: [Executable] = []
-   
-    var body: some View {
-        List {
-            ForEach(files) { exec in
-                ExecView(exec: exec)
+    @State private var text: String = String()
+    private var labels: [String] {
+        var labels: [String] = []
+        
+        for exec in self.files {
+            for sect in exec.sections {
+                for label in Array(
+                    sect.labels.filter {
+                        self.text.isEmpty || String($0)
+                            .localizedCaseInsensitiveContains(self.text)
+                    }
+                ) {
+                    labels.append(String(label))
+                }
             }
+        }
+        
+        return labels
+    }
+    public var files: [Executable] = []
+    
+    public var body: some View {
+        NavigationStack {
+            List {
+                if (self.text.isEmpty) {
+                    ForEach(self.files) { exec in
+                        ExecView(exec: exec)
+                    }
+                } else {
+                    ForEach(self.labels, id: \.self) { label in
+                        HStack {
+                            if !label.matches(of: #/^__TEXT/#).isEmpty {
+                                Text("f")
+                                    .italic()
+                            }
+                            Text(label)
+                        }
+                    }
+                }
+            }
+            .searchable(
+                text: self.$text,
+                prompt: "Search symbol..."
+            )
         }
     }
 }
 
 private struct ExecView: View {
-    let exec: Executable
-    var body: some View {
+    public let exec: Executable
+    
+    public var body: some View {
         DisclosureGroup(exec.name) {
             ForEach(exec.sections, id: \.name) { sect in
                 SectionView(section: sect)
@@ -207,13 +291,19 @@ private struct ExecView: View {
 }
 
 private struct SectionView: View {
-    let section: Core.Section
-    let labels: [String]
+    public let section: Core.Section
+    public let labels: [String]
     
-    var body: some View {
+    public var body: some View {
         DisclosureGroup(String(copying: section.name.utf8Span!)) {
             ForEach(labels, id: \.self) { label in
-                Text(label)
+                HStack {
+                    if self.section.name.contains(std.string("__TEXT")) {
+                        Text("f")
+                            .italic()
+                    }
+                    Text(label)
+                }
             }
         }
     }
