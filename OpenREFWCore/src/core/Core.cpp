@@ -14,24 +14,83 @@ import disxx.disasm.Printer;
 
 import std;
 
-std::vector<std::string> Core::Disassemble(const std::string path) noexcept
+Core::Core(void *pContext, Callback callback) noexcept
+    : m_pContext{pContext}
+    , m_Callback{callback}
+{}
+
+std::vector<std::string> Core::Disassemble(const std::string path) const noexcept
 {
 	std::vector<std::string> strings{};
 
 	// Load the executable
     disxx::loader::macho::Loader ldr{};
-	if (!ldr.LoadFile(path)) [[unlikely]]
-		std::vector<std::string>{};
-	
+    if (const auto result{ldr.LoadFile(path)}; !result) [[unlikely]]
+    {
+        this->m_Callback
+        (
+            this->m_pContext,
+            std::format
+            (
+                "Error loading {}: {}",
+                path,
+                std::visit
+                (
+                    [](auto &&err) -> std::string
+                    { return err.what(); },
+                    result.error()
+                )
+            )
+        );
+        
+        return std::vector<std::string>{};
+    }
+    
 	// Load metadata of the executable
 	auto metadataResult{ldr.LoadMetadata()};
 	if (!metadataResult) [[unlikely]]
-		std::vector<std::string>{};
-
+    {
+        this->m_Callback
+        (
+            this->m_pContext,
+            std::format
+            (
+                "Error loading metadata of {}: {}",
+                path,
+                std::visit
+                (
+                    [](auto &&err) -> std::string
+                    { return err.what(); },
+                    metadataResult.error()
+                )
+            )
+        );
+        
+        return std::vector<std::string>{};
+    }
+    
 	const auto dataResult{ldr.LoadData()};
 	if (!dataResult) [[unlikely]]
-		std::vector<std::string>{};
-
+    {
+        this->m_Callback
+        (
+            this->m_pContext,
+            std::format
+            (
+                "Error loading data of {}: {}",
+                path,
+                std::visit
+                (
+                    [](auto &&err) -> std::string
+                    { return err.what(); },
+                    metadataResult.error()
+                )
+            )
+        );
+        
+        return std::vector<std::string>{};
+    }
+    
 	for (auto &section : dataResult->GetSections())
 	{
 		const auto name{section.GetName()};
@@ -132,12 +191,16 @@ std::vector<std::string> Core::Disassemble(const std::string path) noexcept
 				}
 			}
 		}
+        
+        this->m_Callback(this->m_pContext, std::format("Disassembled: {} section", section.GetName()));
 	}
 
-	return strings;
+    this->m_Callback(this->m_pContext, std::format("Disassembling of {} done!", path));
+    
+	return std::move(strings);
 }
 
-std::vector<Core::Section> Core::ParseSections(const std::string path) noexcept
+std::vector<Core::Section> Core::ParseSections(const std::string path) const noexcept
 {
     std::vector<Section> sects{};
 
@@ -155,7 +218,8 @@ std::vector<Core::Section> Core::ParseSections(const std::string path) noexcept
     if (!dataResult) [[unlikely]]
         std::vector<Section>{};
 
-    for (auto &section : dataResult->GetSections())
+    auto &sections{dataResult->GetSections()};
+    for (auto parsed{0ul}; auto &section : sections)
     {
         std::vector<std::string> labels{};
         for (const auto &label : section.GetLabels())
@@ -167,6 +231,17 @@ std::vector<Core::Section> Core::ParseSections(const std::string path) noexcept
                 .labels = std::move(labels),
                 .name = std::string{section.GetName()},
             }
+        );
+        
+        this->m_Callback
+        (
+            this->m_pContext,
+            std::format
+            (
+                "Parsed {} section(s) out of {}",
+                ++parsed,
+                sections.size()
+            )
         );
     }
     

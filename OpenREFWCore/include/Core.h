@@ -1,5 +1,6 @@
 // Use libc++ module if the file is included in Core.cpp
 #ifndef __INTERNAL_CORE_INCLUDE
+#   include <functional>
 #   include <vector>
 #   include <string>
 #else
@@ -14,6 +15,13 @@
 class __attribute__((visibility("default"))) [[nodiscard]] Core
 {
   public:
+    using Callback = std::function<void(void *, std::string)>;
+    
+  private:
+    void *m_pContext{nullptr};
+    Callback m_Callback{};
+    
+  public:
     struct Section
     {
       public:
@@ -22,9 +30,14 @@ class __attribute__((visibility("default"))) [[nodiscard]] Core
     };
     
   public:
-    // Returns disassembled code
-    static std::vector<std::string> Disassemble(const std::string) noexcept;
-    static std::vector<Section> ParseSections(const std::string) noexcept;
+    explicit Core(void) noexcept;
+    explicit Core(void *, Callback) noexcept;
+    
+    Core(const Core &) noexcept = default;
+    Core &operator=(const Core &) noexcept = default;
+    
+    std::vector<std::string> Disassemble(const std::string) const noexcept;
+    std::vector<Section> ParseSections(const std::string) const noexcept;
 };
 
 #endif /* Core_h */
