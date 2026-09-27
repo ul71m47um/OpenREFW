@@ -187,7 +187,9 @@ struct OpenREFWApp: App {
                 }
                 
                 Button("Close") {
-                    self.view.closeCurrent()
+                    self
+                        .view
+                        .closeCurrent()
                 }
             }
         }
