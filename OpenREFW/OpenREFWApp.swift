@@ -159,11 +159,11 @@ struct OpenREFWAppCommands: Commands {
 @main
 struct OpenREFWApp: App {
     @State private var presented: Bool = false
-    private var view: ContentView = ContentView()
+    @StateObject private var state: ViewState = ViewState()
     
     public var body: some Scene {
         WindowGroup {
-            self.view
+            ContentView(state: self.state)
         }
         .commandsRemoved()
         .commands {
@@ -177,7 +177,7 @@ struct OpenREFWApp: App {
                 ) { result in
                     switch result {
                     case .success(let url):
-                        self.view.push(path: url)
+                        self.state.push(path: url)
                         
                     case .failure:
                         break
@@ -187,9 +187,7 @@ struct OpenREFWApp: App {
                 }
                 
                 Button("Close") {
-                    self
-                        .view
-                        .closeCurrent()
+                    self.state.closeCurrent()
                 }
             }
         }

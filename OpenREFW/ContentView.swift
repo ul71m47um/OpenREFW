@@ -16,11 +16,11 @@ private struct Executable: Identifiable {
     public let name: String
 }
 
-private final class ViewState: ObservableObject {
+public final class ViewState: ObservableObject {
     @Published var consoleText: AttributedString = AttributedString()
     @Published var backend: Backend = Backend()
-    @Published var files: [Executable] = []
-    @Published var tabs: [FileTab] = []
+    @Published fileprivate var files: [Executable] = []
+    @Published fileprivate var tabs: [FileTab] = []
     @Published var currentTab: UUID? = nil
     @Published var status: String = "Ready"
    
@@ -106,11 +106,19 @@ private final class ViewState: ObservableObject {
         
         self.currentTab = nil
     }
+    
+    func closeCurrent() -> Void {
+        guard let id: UUID = currentTab else {
+            return
+        }
+        
+        self.close(id)
+    }
 }
 
 struct ContentView: View {
     @Environment(\.undoManager) private var manager
-    @StateObject private var state: ViewState = ViewState()
+    @ObservedObject var state: ViewState = ViewState()
     
     @State private var disQuery: String = String()
     
@@ -310,16 +318,6 @@ struct ContentView: View {
                     self.state.consoleText += AttributedString("\(message)\n")
                 }
             }
-        }
-    }
-    
-    func push(path: URL) -> Void {
-        self.state.push(path: path)
-    }
-    
-    func closeCurrent() -> Void {
-        if self.state.currentTab != nil {
-            self.state.close(self.state.currentTab!)
         }
     }
 }
