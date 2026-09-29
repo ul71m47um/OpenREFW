@@ -107,10 +107,7 @@ public final class Backend {
             self.queue.async {
                 var text: AttributedString = AttributedString()
 
-                for line in self.disxx.Disassemble(
-                    std.string(filePath)
-                ) {
-
+                for line in self.disxx.Disassemble(std.string(filePath)) {
                     let line: String = String(
                         copying: line.utf8Span!
                     )
@@ -130,15 +127,9 @@ public final class Backend {
 
         return await withCheckedContinuation { continuation in
             queue.async {
-                let sections: [Core.Section] = Array(
-                    self.disxx.ParseSections(
-                        std.string(filePath)
-                    )
-                )
-
-                continuation.resume(
-                    returning: sections
-                )
+                let sections: [Core.Section] = Array(self.disxx.ParseSections(std.string(filePath)))
+                
+                continuation.resume(returning: sections)
             }
         }
     }
