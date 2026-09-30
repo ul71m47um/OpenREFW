@@ -50,69 +50,21 @@ public final class Backend {
         self.continuation = stream.continuation
     }
 
-    private func highlight(_ line: String) -> AttributedString {
-        var str: AttributedString = AttributedString(line)
-
-        let reg: Regex<Substring> = #/(?:\sw|x|b|h|s|d|q|v)\d+/#
-        let imm: Regex<Substring> = #/#-*\d\.*x*[0-9a-f]*/#
-        let addr: Regex<Substring> = #/(?:\s)0x[a-f0-9]+/#
-        let label: Regex<Substring> = #/(?:\s|^)\_[\S\s]+/#
-        let comment: Regex<Substring> = #/;[\s\S]+$/#
-        let begin: Regex<Substring> = #/^0x[0-9a-f]+:/#
-
-        func apply(
-            regex: Regex<Substring>,
-            color: Color
-        ) {
-            var container: AttributeContainer = AttributeContainer()
-            container.foregroundColor = color
-
-            for match in line.matches(of: regex) {
-                let range: Range = match.range
-
-                if let lower: AttributedString.Index = AttributedString.Index(
-                    range.lowerBound,
-                    within: str
-                ),
-                let upper: AttributedString.Index = AttributedString.Index(
-                    range.upperBound,
-                    within: str
-                ) {
-                    str[lower..<upper].mergeAttributes(container)
-                }
-            }
-        }
-
-        apply(regex: reg, color: .blue)
-        apply(regex: imm, color: .red)
-        apply(regex: addr, color: .yellow)
-        apply(regex: label, color: .yellow)
-        apply(regex: comment, color: .gray)
-        apply(regex: begin, color: .gray)
-
-        apply(
-            regex: #/\]!*/#,
-            color: .white
-        )
-
-        return str
-    }
-
-    public func disassemble(_ path: URL) async -> AttributedString {
+    public func disassemble(_ path: URL) async -> String {
         let filePath = String(
             path.path
         )
 
         return await withCheckedContinuation { continuation in
             self.queue.async {
-                var text: AttributedString = AttributedString()
+                var text: String = String()
 
                 for line in self.disxx.Disassemble(std.string(filePath)) {
                     let line: String = String(
                         copying: line.utf8Span!
                     )
 
-                    text += self.highlight(line + "\n")
+                    text += "\(line)\n"
                 }
 
                 continuation.resume(

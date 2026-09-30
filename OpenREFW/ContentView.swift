@@ -7,7 +7,7 @@ import SwiftUI
 private struct FileTab: Identifiable {
     public let id: UUID = UUID()
     public let name: String
-    public let text: AttributedString
+    public let text: String
 }
 
 private struct Executable: Identifiable {
@@ -34,7 +34,7 @@ public final class ViewState: ObservableObject {
         self.status = "Disassembling..."
         Task { @MainActor in
             let sections: [Core.Section] = await self.backend.parse(path)
-            let text: AttributedString = await self.backend.disassemble(path)
+            let text: String = await self.backend.disassemble(path)
             
             let name: String = String(path.absoluteString.trimmingPrefix("file://"))
             let exec: Executable = Executable(
@@ -358,13 +358,13 @@ public struct AboutView: View {
 }
 
 private struct DisassembledView: View {
-    public let text: AttributedString
+    public let text: String
     
     @State private var query: String = String()
     @State private var matches: [Int] = []
     @State private var current: Int = 0
     
-    private var lines: [AttributedString] = []
+    private var lines: [String] = []
     private var plain: [String] = []
     
     var body: some View {
@@ -374,7 +374,55 @@ private struct DisassembledView: View {
                     ForEach(Array(self.lines.indices), id: \.self) { index in
                         let matches: Bool = self.matches.contains(index)
                        
-                        Text(self.lines[index])
+                        Text(
+                            {
+                                var str: AttributedString = AttributedString($0)
+
+                                let reg: Regex<Substring> = #/(?:\sw|x|b|h|s|d|q|v)\d+/#
+                                let imm: Regex<Substring> = #/#-*\d\.*x*[0-9a-f]*/#
+                                let addr: Regex<Substring> = #/(?:\s)0x[a-f0-9]+/#
+                                let label: Regex<Substring> = #/(?:\s|^)\_[\S\s]+/#
+                                let comment: Regex<Substring> = #/;[\s\S]+$/#
+                                let begin: Regex<Substring> = #/^0x[0-9a-f]+:/#
+
+                                func apply(
+                                    regex: Regex<Substring>,
+                                    color: Color
+                                ) {
+                                    var container: AttributeContainer = AttributeContainer()
+                                    container.foregroundColor = color
+
+                                    for match in $0.matches(of: regex) {
+                                        let range: Range = match.range
+
+                                        if let lower: AttributedString.Index = AttributedString.Index(
+                                            range.lowerBound,
+                                            within: str
+                                        ),
+                                        let upper: AttributedString.Index = AttributedString.Index(
+                                            range.upperBound,
+                                            within: str
+                                        ) {
+                                            str[lower..<upper].mergeAttributes(container)
+                                        }
+                                    }
+                                }
+
+                                apply(regex: reg, color: .blue)
+                                apply(regex: imm, color: .red)
+                                apply(regex: addr, color: .yellow)
+                                apply(regex: label, color: .yellow)
+                                apply(regex: comment, color: .gray)
+                                apply(regex: begin, color: .gray)
+
+                                apply(
+                                    regex: #/\]!*/#,
+                                    color: .white
+                                )
+
+                                return str
+                            }(self.lines[index])
+                        )
                             .fixedSize(horizontal: false, vertical: true)
                             .frame(
                                 maxWidth: .infinity,
@@ -472,9 +520,10 @@ private struct DisassembledView: View {
         }
     }
     
-    public init(text: AttributedString) {
+    public init(text: String) {
         self.text = text
 
+        /*
         var result: [AttributedString] = []
 
         let nsAttr: NSAttributedString = NSAttributedString(text)
@@ -495,6 +544,7 @@ private struct DisassembledView: View {
         self.plain = result.map {
             String(NSAttributedString($0).string)
         }
+        */
     }
 }
 
