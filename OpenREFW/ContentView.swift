@@ -359,13 +359,11 @@ public struct AboutView: View {
 
 private struct DisassembledView: View {
     public let text: String
+    private var lines: [String] = []
     
     @State private var query: String = String()
     @State private var matches: [Int] = []
     @State private var current: Int = 0
-    
-    private var lines: [String] = []
-    private var plain: [String] = []
     
     var body: some View {
         ScrollViewReader { proxy in
@@ -458,8 +456,9 @@ private struct DisassembledView: View {
                     return
                 }
                 
-                let found = self.plain.indices.filter {
-                    self.plain[$0]
+                let found = self.lines.indices.filter {
+                    self
+                        .lines[$0]
                         .localizedCaseInsensitiveContains(query)
                 }
                 
@@ -523,28 +522,18 @@ private struct DisassembledView: View {
     public init(text: String) {
         self.text = text
 
-        /*
-        var result: [AttributedString] = []
+        var result: [String] = []
 
-        let nsAttr: NSAttributedString = NSAttributedString(text)
-        let nsString: NSString = nsAttr.string as NSString
+        let nsString: NSString = self.text as NSString
 
         nsString.enumerateSubstrings(
             in: NSRange(location: 0, length: nsString.length),
             options: [.byLines]
         ) { _, range, _, _ in
-            result.append(
-                AttributedString(
-                    nsAttr.attributedSubstring(from: range)
-                )
-            )
+            result.append(nsString.substring(with: range))
         }
 
         self.lines = result
-        self.plain = result.map {
-            String(NSAttributedString($0).string)
-        }
-        */
     }
 }
 
