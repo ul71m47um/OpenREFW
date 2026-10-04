@@ -238,9 +238,8 @@ struct ContentView: View {
             isPresented: self.$presented,
             allowedContentTypes: [.executable]
         ) { result in
-
             if case .success(let url) = result {
-                state.push(path: url)
+                self.state.push(path: url)
             }
 
             self.presented = false
@@ -523,9 +522,8 @@ private struct DisassembledView: View {
         self.text = text
 
         var result: [String] = []
-
+        
         let nsString: NSString = self.text as NSString
-
         nsString.enumerateSubstrings(
             in: NSRange(location: 0, length: nsString.length),
             options: [.byLines]
