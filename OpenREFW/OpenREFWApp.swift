@@ -1,8 +1,12 @@
 internal import UniformTypeIdentifiers
-import OpenREFWCore
+
 import Foundation
 import CxxStdlib
 import SwiftUI
+
+import Core
+
+extension Core.Section: @retroactive @unchecked Sendable {}
 
 public final class Backend {
     public enum Event: Sendable {
@@ -79,9 +83,13 @@ public final class Backend {
 
         return await withCheckedContinuation { continuation in
             queue.async {
-                let sections: [Core.Section] = Array(self.disxx.ParseSections(std.string(filePath)))
-                
-                continuation.resume(returning: sections)
+                continuation.resume(
+                    returning: Array(
+                        self
+                            .disxx
+                            .ParseSections(std.string(filePath))
+                    )
+                )
             }
         }
     }

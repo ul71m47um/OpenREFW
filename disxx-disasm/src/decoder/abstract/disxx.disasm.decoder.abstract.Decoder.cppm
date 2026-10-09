@@ -1,0 +1,51 @@
+export module disxx.disasm.decoder.abstract.Decoder;
+
+export import disxx.disasm.DisassemblyError;
+import disxx.utility.pointer.NonNull;
+
+export import disxx.disasm.InstructionIdentifier;
+export import disxx.disasm.operand.IOperand;
+
+export import disxx.disasm.decoder.abstract.SubDecoder;
+
+export import std;
+
+export namespace disxx::disasm::decoder::abstract
+{
+	class __attribute__((visibility("hidden"))) [[nodiscard]] Decoder
+	{
+      protected:
+		// Subdecoder
+		disxx::utility::pointer::NonNull<SubDecoder> m_pSubDecoder{};
+		
+		// Instruction's address
+		std::uint64_t m_ProgramCounter{};
+		
+		// Instruction's bytes
+		std::uint32_t m_Insn{};
+
+		// Explicit padding
+		std::uint32_t m_Pad{};
+
+	  protected:
+		virtual std::expected
+		<
+			std::unique_ptr<SubDecoder>,
+			disxx::disasm::DisassemblyError
+		> __GetDecoder(void) const noexcept = 0;
+
+  	  public:
+		explicit Decoder(void) noexcept;
+		explicit Decoder(std::uint32_t, std::uint64_t) noexcept;
+		explicit Decoder(std::unique_ptr<SubDecoder> &&) noexcept;
+
+		explicit Decoder(Decoder &&) noexcept;
+		Decoder &operator=(Decoder &&) noexcept;
+
+		virtual ~Decoder(void) noexcept;
+
+		bool HasProgramCounterRelevantAddress(void) const noexcept;
+
+		DisassemblyResult Decode(void) noexcept;
+	};
+} /* disxx::disasm::decoder::abstract */

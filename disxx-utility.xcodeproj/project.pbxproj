@@ -1,0 +1,682 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 110;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8459401230781549005604F6 /* disxx.utility.file.MappedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84593BD0307813DD005604F6 /* disxx.utility.file.MappedFile.cpp */; };
+		8459401530781549005604F6 /* disxx.utility.ini.BaseParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84593BD4307813DD005604F6 /* disxx.utility.ini.BaseParser.cpp */; };
+		8459401630781549005604F6 /* disxx.utility.ini.Reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84593BD5307813DD005604F6 /* disxx.utility.ini.Reader.cpp */; };
+		8459401730781549005604F6 /* disxx.utility.ini.Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84593BD6307813DD005604F6 /* disxx.utility.ini.Parser.cpp */; };
+		8459401830781549005604F6 /* disxx.utility.ini.Writer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84593BD7307813DD005604F6 /* disxx.utility.ini.Writer.cpp */; };
+		8459401930781549005604F6 /* disxx.utility.error.ParserError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84593BD9307813DD005604F6 /* disxx.utility.error.ParserError.cpp */; };
+		8459401A30781549005604F6 /* disxx.utility.error.NullPointerError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84593BDA307813DD005604F6 /* disxx.utility.error.NullPointerError.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8436FBA23070304200CC03DE /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = PrivateModules/error;
+			dstSubfolder = Executables;
+			files = (
+			);
+		};
+		848E5E713075047C00D438DC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = PrivateModules/ini;
+			dstSubfolder = Executables;
+			files = (
+			);
+		};
+		848E5E763075049C00D438DC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = PrivateModules/pointer;
+			dstSubfolder = Executables;
+			files = (
+			);
+		};
+		848E5E79307504B200D438DC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = Modules;
+			dstSubfolder = Executables;
+			files = (
+			);
+		};
+		848E5E7D307504C900D438DC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = Modules/pointer;
+			dstSubfolder = Executables;
+			files = (
+			);
+		};
+		848E5E82307504F700D438DC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = Modules/ini;
+			dstSubfolder = Executables;
+			files = (
+			);
+		};
+		848E5E853075051700D438DC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = Modules/file;
+			dstSubfolder = Executables;
+			files = (
+			);
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		8450B9BF306D0F5800C1803E /* disxx-utility.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "disxx-utility.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		84593BB5307813DD005604F6 /* modules.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = modules.xcfilelist; sourceTree = "<group>"; };
+		84593BB6307813DD005604F6 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		84593BB7307813DD005604F6 /* disxx-utility.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = "disxx-utility.docc"; sourceTree = "<group>"; };
+		84593BB8307813DD005604F6 /* disxx.utility.file.MappedFile.cppm */ = {isa = PBXFileReference; lastKnownFileType = text; path = disxx.utility.file.MappedFile.cppm; sourceTree = "<group>"; };
+		84593BB9307813DD005604F6 /* mapped.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mapped.h; sourceTree = "<group>"; };
+		84593BBB307813DD005604F6 /* disxx.utility.Overload.cppm */ = {isa = PBXFileReference; lastKnownFileType = text; path = disxx.utility.Overload.cppm; sourceTree = "<group>"; };
+		84593BBC307813DD005604F6 /* disxx.utility.ini.Parser.cppm */ = {isa = PBXFileReference; lastKnownFileType = text; path = disxx.utility.ini.Parser.cppm; sourceTree = "<group>"; };
+		84593BBE307813DD005604F6 /* disxx.utility.IClone.cppm */ = {isa = PBXFileReference; lastKnownFileType = text; path = disxx.utility.IClone.cppm; sourceTree = "<group>"; };
+		84593BBF307813DD005604F6 /* disxx.utility.pointer.Pointer.cppm */ = {isa = PBXFileReference; lastKnownFileType = text; path = disxx.utility.pointer.Pointer.cppm; sourceTree = "<group>"; };
+		84593BC0307813DD005604F6 /* disxx.utility.pointer.Weak.cppm */ = {isa = PBXFileReference; lastKnownFileType = text; path = disxx.utility.pointer.Weak.cppm; sourceTree = "<group>"; };
+		84593BC1307813DD005604F6 /* disxx.utility.pointer.NonNull.cppm */ = {isa = PBXFileReference; lastKnownFileType = text; path = disxx.utility.pointer.NonNull.cppm; sourceTree = "<group>"; };
+		84593BC4307813DD005604F6 /* disxx.utility.ini.BaseParser.cppm */ = {isa = PBXFileReference; lastKnownFileType = text; path = disxx.utility.ini.BaseParser.cppm; sourceTree = "<group>"; };
+		84593BC5307813DD005604F6 /* disxx.utility.ini.Reader.cppm */ = {isa = PBXFileReference; lastKnownFileType = text; path = disxx.utility.ini.Reader.cppm; sourceTree = "<group>"; };
+		84593BC6307813DD005604F6 /* disxx.utility.ini.Writer.cppm */ = {isa = PBXFileReference; lastKnownFileType = text; path = disxx.utility.ini.Writer.cppm; sourceTree = "<group>"; };
+		84593BC8307813DD005604F6 /* disxx.utility.pointer.DefaultDeleter.cppm */ = {isa = PBXFileReference; lastKnownFileType = text; path = disxx.utility.pointer.DefaultDeleter.cppm; sourceTree = "<group>"; };
+		84593BCA307813DD005604F6 /* disxx.utility.error.ParserError.cppm */ = {isa = PBXFileReference; lastKnownFileType = text; path = disxx.utility.error.ParserError.cppm; sourceTree = "<group>"; };
+		84593BCB307813DD005604F6 /* disxx.utility.error.NullPointerError.cppm */ = {isa = PBXFileReference; lastKnownFileType = text; path = disxx.utility.error.NullPointerError.cppm; sourceTree = "<group>"; };
+		84593BCF307813DD005604F6 /* objects.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = objects.xcfilelist; sourceTree = "<group>"; };
+		84593BD0307813DD005604F6 /* disxx.utility.file.MappedFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = disxx.utility.file.MappedFile.cpp; sourceTree = "<group>"; };
+		84593BD1307813DD005604F6 /* mapped.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = mapped.s; sourceTree = "<group>"; };
+		84593BD2307813DD005604F6 /* mapped.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mapped.c; sourceTree = "<group>"; };
+		84593BD4307813DD005604F6 /* disxx.utility.ini.BaseParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = disxx.utility.ini.BaseParser.cpp; sourceTree = "<group>"; };
+		84593BD5307813DD005604F6 /* disxx.utility.ini.Reader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = disxx.utility.ini.Reader.cpp; sourceTree = "<group>"; };
+		84593BD6307813DD005604F6 /* disxx.utility.ini.Parser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = disxx.utility.ini.Parser.cpp; sourceTree = "<group>"; };
+		84593BD7307813DD005604F6 /* disxx.utility.ini.Writer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = disxx.utility.ini.Writer.cpp; sourceTree = "<group>"; };
+		84593BD9307813DD005604F6 /* disxx.utility.error.ParserError.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = disxx.utility.error.ParserError.cpp; sourceTree = "<group>"; };
+		84593BDA307813DD005604F6 /* disxx.utility.error.NullPointerError.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = disxx.utility.error.NullPointerError.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8450B9BC306D0F5800C1803E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8450B9B5306D0F5800C1803E = {
+			isa = PBXGroup;
+			children = (
+				8450B9C0306D0F5800C1803E /* Products */,
+				84593BDD307813DD005604F6 /* disxx-utility */,
+			);
+			sourceTree = "<group>";
+		};
+		8450B9C0306D0F5800C1803E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8450B9BF306D0F5800C1803E /* disxx-utility.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		84593BBA307813DD005604F6 /* file */ = {
+			isa = PBXGroup;
+			children = (
+				84593BB8307813DD005604F6 /* disxx.utility.file.MappedFile.cppm */,
+				84593BB9307813DD005604F6 /* mapped.h */,
+			);
+			path = file;
+			sourceTree = "<group>";
+		};
+		84593BBD307813DD005604F6 /* ini */ = {
+			isa = PBXGroup;
+			children = (
+				84593BBC307813DD005604F6 /* disxx.utility.ini.Parser.cppm */,
+			);
+			path = ini;
+			sourceTree = "<group>";
+		};
+		84593BC2307813DD005604F6 /* pointer */ = {
+			isa = PBXGroup;
+			children = (
+				84593BBF307813DD005604F6 /* disxx.utility.pointer.Pointer.cppm */,
+				84593BC0307813DD005604F6 /* disxx.utility.pointer.Weak.cppm */,
+				84593BC1307813DD005604F6 /* disxx.utility.pointer.NonNull.cppm */,
+			);
+			path = pointer;
+			sourceTree = "<group>";
+		};
+		84593BC3307813DD005604F6 /* public */ = {
+			isa = PBXGroup;
+			children = (
+				84593BBA307813DD005604F6 /* file */,
+				84593BBB307813DD005604F6 /* disxx.utility.Overload.cppm */,
+				84593BBD307813DD005604F6 /* ini */,
+				84593BBE307813DD005604F6 /* disxx.utility.IClone.cppm */,
+				84593BC2307813DD005604F6 /* pointer */,
+			);
+			path = public;
+			sourceTree = "<group>";
+		};
+		84593BC7307813DD005604F6 /* ini */ = {
+			isa = PBXGroup;
+			children = (
+				84593BC4307813DD005604F6 /* disxx.utility.ini.BaseParser.cppm */,
+				84593BC5307813DD005604F6 /* disxx.utility.ini.Reader.cppm */,
+				84593BC6307813DD005604F6 /* disxx.utility.ini.Writer.cppm */,
+			);
+			path = ini;
+			sourceTree = "<group>";
+		};
+		84593BC9307813DD005604F6 /* pointer */ = {
+			isa = PBXGroup;
+			children = (
+				84593BC8307813DD005604F6 /* disxx.utility.pointer.DefaultDeleter.cppm */,
+			);
+			path = pointer;
+			sourceTree = "<group>";
+		};
+		84593BCC307813DD005604F6 /* error */ = {
+			isa = PBXGroup;
+			children = (
+				84593BCA307813DD005604F6 /* disxx.utility.error.ParserError.cppm */,
+				84593BCB307813DD005604F6 /* disxx.utility.error.NullPointerError.cppm */,
+			);
+			path = error;
+			sourceTree = "<group>";
+		};
+		84593BCD307813DD005604F6 /* private */ = {
+			isa = PBXGroup;
+			children = (
+				84593BC7307813DD005604F6 /* ini */,
+				84593BC9307813DD005604F6 /* pointer */,
+				84593BCC307813DD005604F6 /* error */,
+			);
+			path = private;
+			sourceTree = "<group>";
+		};
+		84593BCE307813DD005604F6 /* modules */ = {
+			isa = PBXGroup;
+			children = (
+				84593BC3307813DD005604F6 /* public */,
+				84593BCD307813DD005604F6 /* private */,
+			);
+			path = modules;
+			sourceTree = "<group>";
+		};
+		84593BD3307813DD005604F6 /* file */ = {
+			isa = PBXGroup;
+			children = (
+				84593BD0307813DD005604F6 /* disxx.utility.file.MappedFile.cpp */,
+				84593BD1307813DD005604F6 /* mapped.s */,
+				84593BD2307813DD005604F6 /* mapped.c */,
+			);
+			path = file;
+			sourceTree = "<group>";
+		};
+		84593BD8307813DD005604F6 /* ini */ = {
+			isa = PBXGroup;
+			children = (
+				84593BD4307813DD005604F6 /* disxx.utility.ini.BaseParser.cpp */,
+				84593BD5307813DD005604F6 /* disxx.utility.ini.Reader.cpp */,
+				84593BD6307813DD005604F6 /* disxx.utility.ini.Parser.cpp */,
+				84593BD7307813DD005604F6 /* disxx.utility.ini.Writer.cpp */,
+			);
+			path = ini;
+			sourceTree = "<group>";
+		};
+		84593BDB307813DD005604F6 /* error */ = {
+			isa = PBXGroup;
+			children = (
+				84593BD9307813DD005604F6 /* disxx.utility.error.ParserError.cpp */,
+				84593BDA307813DD005604F6 /* disxx.utility.error.NullPointerError.cpp */,
+			);
+			path = error;
+			sourceTree = "<group>";
+		};
+		84593BDC307813DD005604F6 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				84593BD3307813DD005604F6 /* file */,
+				84593BD8307813DD005604F6 /* ini */,
+				84593BDB307813DD005604F6 /* error */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		84593BDD307813DD005604F6 /* disxx-utility */ = {
+			isa = PBXGroup;
+			children = (
+				84593BB5307813DD005604F6 /* modules.xcfilelist */,
+				84593BB6307813DD005604F6 /* Makefile */,
+				84593BB7307813DD005604F6 /* disxx-utility.docc */,
+				84593BCE307813DD005604F6 /* modules */,
+				84593BCF307813DD005604F6 /* objects.xcfilelist */,
+				84593BDC307813DD005604F6 /* src */,
+			);
+			path = "disxx-utility";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		8450B9BA306D0F5800C1803E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			files = (
+			);
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		8450B9BE306D0F5800C1803E /* disxx-utility */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8450B9C8306D0F5800C1803E /* Build configuration list for PBXNativeTarget "disxx-utility" */;
+			buildPhases = (
+				84EB8C1E306E74E200C55817 /* ShellScript */,
+				8450B9BA306D0F5800C1803E /* Headers */,
+				8450B9BB306D0F5800C1803E /* Sources */,
+				8450B9BC306D0F5800C1803E /* Frameworks */,
+				8436FBA23070304200CC03DE /* CopyFiles */,
+				848E5E713075047C00D438DC /* CopyFiles */,
+				848E5E763075049C00D438DC /* CopyFiles */,
+				848E5E79307504B200D438DC /* CopyFiles */,
+				848E5E7D307504C900D438DC /* CopyFiles */,
+				848E5E82307504F700D438DC /* CopyFiles */,
+				848E5E853075051700D438DC /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			name = "disxx-utility";
+			productName = "disxx-utility";
+			productReference = 8450B9BF306D0F5800C1803E /* disxx-utility.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8450B9B6306D0F5800C1803E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 2700;
+				LastUpgradeCheck = 2700;
+				TargetAttributes = {
+					8450B9BE306D0F5800C1803E = {
+						CreatedOnToolsVersion = 27.0;
+					};
+				};
+			};
+			buildConfigurationList = 8450B9B9306D0F5800C1803E /* Build configuration list for PBXProject "disxx-utility" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 8450B9B5306D0F5800C1803E;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 110;
+			productRefGroup = 8450B9C0306D0F5800C1803E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8450B9BE306D0F5800C1803E /* disxx-utility */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		84EB8C1E306E74E200C55817 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			inputFileListPaths = (
+				"$(SRCROOT)/disxx-utility/modules.xcfilelist",
+			);
+			inputPaths = (
+				"",
+				"$(SRCROOT)/disxx-utility/src/file/mapped.s",
+				"$(SRCROOT)/disxx-utility/src/file/mapped.c",
+			);
+			outputFileListPaths = (
+				"$(SRCROOT)/disxx-utility/objects.xcfilelist",
+			);
+			shellPath = /usr/bin/ruby;
+			shellScript = (
+				"#!/usr/bin/ruby",
+				"",
+				"require \"shellwords\"",
+				"require \"open3\"",
+				"",
+				"if __FILE__ == $0",
+				"    Dir.mkdir(\"#{ENV[\"DERIVED_FILE_DIR\"]}/precompiled/\") if !Dir.exists? \"#{ENV[\"DERIVED_FILE_DIR\"]}/precompiled/\"",
+				"    Dir.mkdir(ENV[\"OBJECT_FILE_DIR\"]) if !Dir.exists? ENV[\"OBJECT_FILE_DIR\"]",
+				"",
+				"    if ENV[\"ARCHS\"] == \"arm64\"",
+				"        _, stderr, status = Open3.capture3(",
+				"            \"xcrun\", \"as\",",
+				"            \"-c\", ENV[\"SCRIPT_INPUT_FILE_1\"],",
+				"            \"-o\", \"#{ENV[\"OBJECT_FILE_DIR\"]}/#{File.basename(ENV[\"SCRIPT_INPUT_FILE_1\"]).gsub /\\.s$/, \".o\"}\"",
+				"        )",
+				"            ",
+				"        warn stderr",
+				"            ",
+				"        exit status.exitstatus if !status.success?",
+				"    else",
+				"        _, stderr, status = Open3.capture3(",
+				"            \"xcrun\", \"clang\",",
+				"            *Shellwords.shellsplit(ENV[\"OTHER_CFLAGS\"] || \"\"),",
+				"            \"-c\", ENV[\"SCRIPT_INPUT_FILE_2\"],",
+				"            \"-o\", \"#{ENV[\"OBJECT_FILE_DIR\"]}/#{File.basename(ENV[\"SCRIPT_INPUT_FILE_2\"]).gsub /\\.c$/, \".o\"}\"",
+				"        )",
+				"            ",
+				"        warn stderr",
+				"            ",
+				"        exit status.exitstatus if !status.success?",
+				"    end",
+				"",
+				"    File.open(ENV[\"SCRIPT_INPUT_FILE_LIST_0\"]) do |file|",
+				"        file.readlines.each do |src|",
+				"            src = src.gsub /\\n$/, ''",
+				"            ",
+				"            next if src.empty?",
+				"  ",
+				"            _, stderr, status = Open3.capture3(",
+				"                \"xcrun\", \"clang++\",",
+				"                *Shellwords.shellsplit(ENV[\"OTHER_CPLUSPLUSFLAGS\"] || \"\"),",
+				"                \"-std=#{ENV[\"CLANG_CXX_LANGUAGE_STANDARD\"]}\",",
+				"                \"-fmodule-output=#{ENV[\"DERIVED_FILE_DIR\"]}/precompiled/#{File.basename(src.gsub /\\.cppm$/, \".pcm\")}\",",
+				"                \"-c\", src,",
+				"                \"-o\", \"#{ENV[\"OBJECT_FILE_DIR\"]}/#{File.basename(src).gsub /\\.cppm$/, \"-mod.o\"}\"",
+				"            )",
+				"            ",
+				"            warn stderr",
+				"            ",
+				"            exit status.exitstatus if !status.success?",
+				"        end",
+				"    end",
+				"    ",
+				"    File.open(ENV[\"SCRIPT_OUTPUT_FILE_LIST_0\"]) do |file|",
+				"        ENV[\"ARCHS\"].split ' ' do |arch|",
+				"            File.open(ENV[\"LINK_FILE_LIST_normal_#{arch}\"], 'a') do |list|",
+				"                file.readlines.each do |obj|",
+				"                    list.write obj",
+				"                end",
+				"            end",
+				"        end",
+				"    end",
+				"end",
+				"",
+			);
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8450B9BB306D0F5800C1803E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+				8459401230781549005604F6 /* disxx.utility.file.MappedFile.cpp in Sources */,
+				8459401530781549005604F6 /* disxx.utility.ini.BaseParser.cpp in Sources */,
+				8459401630781549005604F6 /* disxx.utility.ini.Reader.cpp in Sources */,
+				8459401730781549005604F6 /* disxx.utility.ini.Parser.cpp in Sources */,
+				8459401830781549005604F6 /* disxx.utility.ini.Writer.cpp in Sources */,
+				8459401930781549005604F6 /* disxx.utility.error.ParserError.cpp in Sources */,
+				8459401A30781549005604F6 /* disxx.utility.error.NullPointerError.cpp in Sources */,
+			);
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		8450B9C6306D0F5800C1803E /* Debug configuration for PBXProject "disxx-utility" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		8450B9C7306D0F5800C1803E /* Release configuration for PBXProject "disxx-utility" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		8450B9C9306D0F5800C1803E /* Debug configuration for PBXNativeTarget "disxx-utility" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++26";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				EXCLUDED_SOURCE_FILE_NAMES = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fprebuilt-module-path=\"${DERIVED_FILE_DIR}/precompiled/\"",
+					"-fcxx-modules",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.ul71m47um.disxx-utility";
+				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Debug;
+		};
+		8450B9CA306D0F5800C1803E /* Release configuration for PBXNativeTarget "disxx-utility" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++26";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				EXCLUDED_SOURCE_FILE_NAMES = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fprebuilt-module-path=\"${DERIVED_FILE_DIR}/precompiled/\"",
+					"-fcxx-modules",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "io.github.ul71m47um.disxx-utility";
+				PRODUCT_MODULE_NAME = "$(PRODUCT_NAME)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8450B9B9306D0F5800C1803E /* Build configuration list for PBXProject "disxx-utility" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8450B9C6306D0F5800C1803E /* Debug configuration for PBXProject "disxx-utility" */,
+				8450B9C7306D0F5800C1803E /* Release configuration for PBXProject "disxx-utility" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		8450B9C8306D0F5800C1803E /* Build configuration list for PBXNativeTarget "disxx-utility" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8450B9C9306D0F5800C1803E /* Debug configuration for PBXNativeTarget "disxx-utility" */,
+				8450B9CA306D0F5800C1803E /* Release configuration for PBXNativeTarget "disxx-utility" */,
+			);
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8450B9B6306D0F5800C1803E /* Project object */;
+	validationLevel = 1;
+}

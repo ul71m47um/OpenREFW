@@ -1,0 +1,15 @@
+$(OBJECT_FILE_DIR)/std-mod.o
+$(OBJECT_FILE_DIR)/disxx.utility.file.MappedFile-mod.o
+$(OBJECT_FILE_DIR)/disxx.utility.Overload-mod.o
+$(OBJECT_FILE_DIR)/disxx.utility.error.ParserError-mod.o
+$(OBJECT_FILE_DIR)/disxx.utility.ini.BaseParser-mod.o
+$(OBJECT_FILE_DIR)/disxx.utility.ini.Reader-mod.o
+$(OBJECT_FILE_DIR)/disxx.utility.ini.Writer-mod.o
+$(OBJECT_FILE_DIR)/disxx.utility.ini.Parser-mod.o
+$(OBJECT_FILE_DIR)/disxx.utility.IClone-mod.o
+$(OBJECT_FILE_DIR)/disxx.utility.pointer.Pointer-mod.o
+$(OBJECT_FILE_DIR)/disxx.utility.pointer.Weak-mod.o
+$(OBJECT_FILE_DIR)/disxx.utility.pointer.DefaultDeleter-mod.o
+$(OBJECT_FILE_DIR)/disxx.utility.error.NullPointerError-mod.o
+$(OBJECT_FILE_DIR)/disxx.utility.pointer.NonNull-mod.o
+$(OBJECT_FILE_DIR)/mapped.o
